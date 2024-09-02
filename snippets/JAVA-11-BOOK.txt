@@ -4951,6 +4951,1738 @@ public void fly(short numFeet) {}
 public boolean fly() { return false; }
 void fly(int numMiles, short numFeet) {}
 public void fly(short numFeet, int numMiles) throws Exception {}
+================
+we can overload by changing anything in the parameter list. We can have a different type, more types, or the same types in a different order. Also notice that the return type, access modifier, and exception list are irrelevant to overloading.
+
+
+public void fly(int numMiles) {}
+public int fly(int numMiles) {}     // DOES NOT COMPILE
+This method doesn’t compile because it differs from the original only by return type. The parameter lists are the same, so they are duplicate methods as far as Java is concerned.
+
+============
+public void roar(List<Boolean> b) {}
+
+and
+
+public void roar(List<Character> c) {}
+incorrect because the method signature is identical once the generic types are erased
+===============
+
+  1:  public class Rope {
+  2:     public static void swing() {
+  3:        System.out.print("swing");
+  4:     }
+  5:     public void climb() {
+  6:        System.out.println("climb");
+  7:     }
+  8:     public static void play() {
+  9:        swing();
+  10:       climb();
+  11:    }
+  12:    public static void main(String[] args) {
+  13:       Rope rope = new Rope();
+  14:       rope.play();
+  15:       Rope rope2 = null;
+  16:       System.out.print("-");
+  17:       rope2.play();
+  18:    } } compiles if remove line 10: rope2.play() compiler changes to Rope.play() because it is static
+
+=============================================================================
+
+ import rope.*;
+  import static rope.Rope.*;
+  public class RopeSwing {
+     private static Rope rope1 = new Rope();
+     private static Rope rope2 = new Rope();
+     {
+        System.out.println(rope1.length);
+     }
+     public static void main(String[] args) {
+        rope1.length = 2;
+        rope2.length = 8;
+        System.out.println(rope1.length);
+     }
+  }
+
+  package rope;
+  public class Rope {
+     public static int length = 0;
+  }
+
+Static Variable in Rope Class:
+
+Rope class has a static variable length. This means the variable length is shared among all instances of the Rope class.
+public static int length = 0; initializes the length to 0.
+Instance Initializer in RopeSwing Class:
+
+RopeSwing has an instance initializer block:
+
+{
+   System.out.println(rope1.length);
+}
+This block would run each time an instance of RopeSwing is created. However, no instance of RopeSwing is created in the main method, so this block does not execute.
+Static Variables in RopeSwing Class:
+
+Two static Rope objects are created:
+
+private static Rope rope1 = new Rope();
+private static Rope rope2 = new Rope();
+Both rope1 and rope2 share the same length variable because length is static.
+main Method Execution:
+
+In main, rope1.length = 2; sets the static length variable to 2.
+Then, rope2.length = 8; sets the same static length variable to 8.
+The output of System.out.println(rope1.length); is 8, because rope1.length and rope2.length both reference the same static length variable, which was last set to 8.
+================
+
+If a variable is static final, it must be set exactly once, and it must be in the declaration line or in a static initialization block
+=============
+
+  1: import java.util.*;
+  2: // INSERT CODE HERE
+  3: public class Imports {
+  4:    public void method(ArrayList<String> list) {
+  5:       sort(list);
+  6:    }
+  7: }
+The two valid ways to do this are import static java.util.Collections.*; and import static java.util.Collections.sort;
+Option A is incorrect because you can do a static import only on static members (import static java.util.Collections)
+
+=======
+
+In var y = x * (long) x;:
+
+(long) x converts x to long.
+Multiplying an int by long results in a long.
+So, y is inferred as long.
+Multiplying does not automatically result in int; 
+=================
+
+ technically, you can modify or assign values to static variables within a constructor, but it is not recommended. It can create confusion, as static variables are shared across all instances, and modifying them in a constructor could lead to unintended side effects.
+
+ 1: package my.school;
+  2: public class Classroom {
+  3:    private int roomNumber;
+  4:    protected static String teacherName;
+  5:    static int globalKey = 54321;
+  6:    public static int floor = 3;
+  7:    Classroom(int r, String t) {
+  8:       roomNumber = r;
+  9:       teacherName = t; } }
+
+  1: package my.city;
+  2: import my.school.*;
+  3: public class School {
+  4:    public static void main(String[] args) {
+  5:       System.out.println(Classroom.globalKey);
+  6:       Classroom room = new Classroom(101, "Mrs. Anderson");
+  7:       System.out.println(room.roomNumber);
+  8:       System.out.println(Classroom.floor);
+  9:       System.out.println(Classroom.teacherName); } }
+
+===========
+public var meow(List<String> l) {}
+
+and
+
+public var meow(String s) {} not overload example: cant use var!!!
+=============
+
+Static Import: import static rope.Rope.*; imports all static members of the Rope class, allowing direct access to LENGTH and swing() in Chimp without needing to prefix them with Rope..
+==========
+ 1:  public class Rope {
+  2:     public static void swing() {
+  3:        System.out.print("swing");
+  4:     }
+  5:     public void climb() {
+  6:        System.out.println("climb");
+  7:     }
+  8:     public static void play() {
+  9:        swing();
+  10:       climb();
+  11:    }
+  12:    public static void main(String[] args) {
+  13:       Rope rope = new Rope();
+  14:       rope.play();
+  15:       Rope rope2 = null;
+  16:       System.out.print("-");
+  17:       rope2.play();
+  18:    } }
+
+
+ It does not throw a NullPointerException on line 17 because play() is a static method. Java looks at the type of the reference for rope2 and translates the call to Rope.play().
+======================
+public void roar(long… longs){}
+
+and
+
+public void roar(long long) {}
+
+The variable long is illegal because long is a reserved word. 
+========================================
+INHERITANCE
+============
+
+
+
+Java supports single inheritance, by which a class may inherit from only one direct parent class. 
+ava also supports multiple levels of inheritance, by which one class may extend another class, which in turn extends another class. You can have any number of levels of inheritance, allowing each descendant to gain access to its ancestor’s members.
+ all classes inherit from a single class: java.lang.Object, or Object for short. Furthermore, Object is the only class that doesn’t have a parent class.
+the compiler has been automatically inserting code into any class you write that doesn’t extend a specific class.
+every class gains access to any accessible methods in the Object class. For example, the toString() and equals() methods are available in Object; therefore, they are accessible in all classes. Without being overridden in a subclass, though, they may not be particularly useful. 
+when you define a new class that extends an existing class, Java does not automatically extend the Object class. Since all classes inherit from Object, extending an existing class means the child already inherits from Object by definition. 
+
+!! final means a class cannot be extended.
+
+In Java, a top-level class is a class that is not defined inside another class.hey can only have public or package-private access.
+An inner class is a class defined inside of another class and is the opposite of a top-level class. In addition to public and package-private access, inner classes can also have protected and private access.
+One benefit of using the package-private access is that you can define many classes within the same Java file.
+===========================
+
+public class Flamingo {
+   private String color;
+   public void setColor(String color) {
+      color = color;
+   }
+   public static void main(String... unused) {
+      Flamingo f = new Flamingo();
+      f.setColor("PINK");
+      System.out.println(f.color);
+   }
+}
+If you said null, then you’d be correct. Java uses the most granular scope, so when it sees color = color, it thinks you are assigning the method parameter value to itself. The assignment completes successfully within the method, but the value of the instance variable color is never modified and is null when printed in the main() method.
+=============
+
+class Mammal {
+   String type = "mammal";
+}
+ 
+public class Bat extends Mammal {
+   String type = "bat";
+   public String getType() {
+      return super.type + ":" + this.type;
+   }
+   public static void main(String... zoo) {
+      System.out.print(new Bat().getType());
+   }
+}
+The program prints mammal:bat
+=======================
+
+  class Insect {
+2:     protected int numberOfLegs = 4;
+3:     String label = "buggy";
+4:  }
+5:  
+6:  public class Beetle extends Insect {
+7:     protected int numberOfLegs = 6;
+8:     short age = 3;
+9:     public void printData() {
+10:       System.out.print(this.label);
+11:       System.out.print(super.label);
+12:       System.out.print(this.age);
+13:       System.out.print(super.age);
+14:       System.out.print(numberOfLegs);
+15:    }
+16:    public static void main(String []n) {
+17:       new Beetle().printData();
+18:    }
+19: } this program code would not compile!
+
+Since label is defined in the parent class, it is accessible via both this and super references. For this reason, lines 10 and 11 compile and would both print buggy if the class compiled.
+line 13 doesnt compile
+, Java checks outward starting with the narrowest scope. For this reason, the value of numberOfLegs in the Beetle class is used and 6 would be printed.In this example, this.numberOfLegs and super.numberOfLegs refer to different variables with distinct values.Since this includes inherited members, you often only use super when you have a naming conflict via inheritance
+----------------
+--- CONSTRUCTORS --------
+
+Like method parameters, constructor parameters can be any valid class, array, or primitive type, including generics, but may not include var. The following does not compile:
+
+class Bonobo {
+   public Bonobo(var food) { // DOES NOT COMPILE
+   }
+}
+
+public class Turtle {
+   private String name;
+   public Turtle() {
+      name = "John Doe";
+   }  
+   public Turtle(int age) {}
+   public Turtle(long age) {}
+   public Turtle(String newName, String... favoriteFoods) {
+      name = newName;
+   }
+}
+When Java sees the new keyword, it allocates memory for the new object. It then looks for a constructor with a matching signature and calls it.
+Every class in Java has a constructor whether you code one or not. If you don’t include any constructors in the class, Java will create one for you without any parameters. This Java-created constructor is called the default constructor and is added anytime a class is declared without any constructors.
+!! Remember that a default constructor is only supplied if there are no constructors present.
+!! Having only private constructors in a class tells the compiler not to provide a default no-argument constructor.
+!! NB !! 
+It also prevents other classes from instantiating the class. This is useful when a class has only static methods or the developer wants to have full control of all calls to create new instances of the class. Remember, static methods in the class, including a main() method, may access private members, including private constructors.
+
+==========
+
+public class Hamster {
+   private String color;
+   private int weight;
+   public Hamster(int weight) {                 // First constructor
+      this.weight = weight;
+      color = "brown";
+   }
+   public Hamster(int weight, String color) {   // Second constructor
+      this.weight = weight;
+      this.color = color;
+   }
+}
+
+ public Hamster(int weight) {
+      Hamster(weight, "brown");      // DOES NOT COMPILE
+   }
+This attempt does compile. It doesn’t do what we want, though. When this constructor is called, it creates a new object with the default weight and color. It then constructs a different object with the desired weight and color and ignores the new object. In this manner, we end up with two objects, with one being discarded after it is created. That’s not what we want. We want weight and color set on the object we are trying to instantiate in the first place
+
+
+ public Hamster(int weight) {
+      this(weight, "brown");
+   }
+
+-----------
+
+public class Gopher {
+   public Gopher(int dugHoles) {
+      this(5);  // DOES NOT COMPILE
+   }
+}
+The compiler is capable of detecting that this constructor is calling itself infinitely. Since this code can never terminate, the compiler stops and reports this as an error. Likewise, this also does not compile:
+
+
+public class Gopher {
+   public Gopher() {
+      this(5);  // DOES NOT COMPILE
+   }
+   public Gopher(int dugHoles) {
+      this();   // DOES NOT COMPILE
+   }
+}
+ this, refers to an instance of the class, while the second, this(), refers to a constructor call within the class.
+
+public class Animal {
+   private int age;
+   public Animal(int age) {
+      super();     // Refers to constructor in java.lang.Object
+      this.age = age;
+   }
+}
+
+public class Zebra extends Animal {
+   public Zebra(int age) {
+      super(age);  // Refers to constructor in Animal
+   }
+   public Zebra() {
+      this(4);     // Refers to constructor in Zebra with int argument
+   }
+}
+The class Zebra also includes a second no-argument constructor that doesn’t call super() but instead calls the other constructor within the Zebra class using this(4).
+Like calling this(), calling super() can only be used as the first statement of the constructor. super, is used to reference members of the parent class, while the second, super(), calls a parent constructor. 
+super() Always Refers to the Most Direct Parent
+
+
+Unlike local final variables, which are not required to have a value unless they are actually used, final instance variables must be assigned a value.
+Default values are not used for these variables.  If they are not assigned a value in the line where they are declared or in an instance initializer, then they must be assigned a value in the constructor declaration. Failure to do so will result in a compiler error on the line that declares the constructor.
+public class MouseHouse {
+   private final int volume;
+   private final String type;
+   {
+      this.volume = 10;
+   }
+   public MouseHouse(String type) {
+      this.type = type;
+   }
+   public MouseHouse() {  // DOES NOT COMPILE
+      this.volume = 2;    // DOES NOT COMPILE
+   }
+}
+In this example, the first constructor that takes a String argument compiles. Although a final instance variable can be assigned a value only once, each constructor is considered independently in terms of assignment. The second constructor does not compile for two reasons. First, the constructor fails to set a value for the type variable. The compiler detects that a value is never set for type and reports an error on the line where the constructor is declared. Second, the constructor sets a value for the volume variable, even though it was already assigned a value by the instance initializer. The compiler reports this error on the line where volume is set.
+
+  public MouseHouse() {
+      this(null);
+   }
+This constructor does not perform any assignments to any final instance variables, but it calls the MouseHouse(String) constructor, which we observed compiles without issue. We use null here to demonstrate that the variable does not need to be an object value. We can assign a null value to final instance variables, so long as they are explicitly set.
+
+public class Animal {
+   static { System.out.print("A"); }
+}
+ 
+public class Hippo extends Animal {
+   static { System.out.print("B"); }
+   public static void main(String[] grass) {
+      System.out.print("C");
+      new Hippo();
+      new Hippo();
+      new Hippo();
+   }
+}
+It prints ABC exactly once. Since the main() method is inside the Hippo class, the class will be initialized first, starting with the superclass and printing AB. Afterward, the main() method is executed, printing C. Even though the main() method creates three instances, the class is loaded only once.
+
+ you just need to know that a class must be initialized before it is referenced or used. 
+!! NB !! the class containing the program entry point, aka the main() method, is loaded before the main() method is executed.
+----------
+1:  public class ZooTickets {
+2:     private String name = "BestZoo";
+3:     { System.out.print(name+"-"); }
+4:     private static int COUNT = 0;
+5:     static { System.out.print(COUNT+"-"); }
+6:     static { COUNT += 10; System.out.print(COUNT+"-"); }
+7:  
+8:     public ZooTickets() {
+9:        System.out.print("z-");
+10:    }
+11:
+12:    public static void main(String... patrons) {
+13:       new ZooTickets();
+14:    }
+15: }
+The output is as follows:  0-10-BestZoo-z-              !!!! nb !!!!!!!
+
+============
+
+:  public class Cuttlefish {
+2:     private String name = "swimmy";
+3:     { System.out.println(name); }
+4:     private static int COUNT = 0;
+5:     static { System.out.println(COUNT); }
+6:     { COUNT++; System.out.println(COUNT); }
+7:  
+8:     public Cuttlefish() {
+9:        System.out.println("Constructor");
+10:    }
+11:
+12:    public static void main(String[] args) {
+13:       System.out.println("Ready");
+14:       new Cuttlefish();
+15:    }
+16: }
+outcome:
+0
+Ready
+swimmy
+1
+Constructor
+
+================
+
+
+class Primate {
+   public Primate() {
+      System.out.print("Primate-");
+   }
+}
+ 
+class Ape extends Primate {
+   public Ape(int fur) {
+      System.out.print("Ape1-");
+   }
+   public Ape() {
+      System.out.print("Ape2-");
+   }
+}
+ 
+public class Chimpanzee extends Ape {
+   public Chimpanzee() {
+      super(2);
+      System.out.print("Chimpanzee-");
+   }
+   public static void main(String[] args) {
+      new Chimpanzee();
+   }
+}
+The compiler inserts the super() command as the first statement of both the Primate and Ape constructors. The code will execute with the parent constructors called first and yields the following output:    Primate-Ape1-Chimpanzee-
+=================================
+
+1:  public class Cuttlefish {
+2:     private String name = "swimmy";
+3:     { System.out.println(name); }
+4:     private static int COUNT = 0;
+5:     static { System.out.println(COUNT); }
+6:     { COUNT++; System.out.println(COUNT); }
+7:  
+8:     public Cuttlefish() {
+9:        System.out.println("Constructor");
+10:    }
+11:
+12:    public static void main(String[] args) {
+13:       System.out.println("Ready");
+14:       new Cuttlefish();
+15:    }
+16: }
+// output:
+0
+Ready
+swimmy
+1
+Constructor
+====================
+
+1:  class GiraffeFamily {
+2:     static { System.out.print("A"); }
+3:     { System.out.print("B"); }
+4:    
+5:     public GiraffeFamily(String name) {
+6:        this(1);
+7:        System.out.print("C");  
+8:     }
+9:    
+10:    public GiraffeFamily() {
+11:       System.out.print("D");  
+12:    }
+13:    
+14:    public GiraffeFamily(int stripes) {
+15:       System.out.print("E");  
+16:    }
+17: }
+
+18: public class Okapi extends GiraffeFamily {
+19:    static { System.out.print("F"); }
+20:    
+21:    public Okapi(int stripes) {
+22:       super("sugar");
+23:       System.out.print("G");  
+24:    }
+25:    { System.out.print("H"); }
+26:    
+27:    public static void main(String[] grass) {
+28:       new Okapi(1);
+29:       System.out.println();
+30:       new Okapi(2);
+31:    }
+32: }
+The program prints the following:
+
+
+AFBECHG
+BECHG
+Let’s walk through it. Start with initializing the Okapi class. Since it has a superclass GiraffeFamily, initialize it first, printing A on line 2. Next, initialize the Okapi class, printing F on line 19.
+After the classes are initialized, execute the main() method on line 27. The first line of the main() method creates a new Okapi object, triggering the instance initialization process. Per the first rule, the superclass instance of GiraffeFamily is initialized first. Per our third rule, the instance initializer in the superclass GiraffeFamily is called, and B is printed on line 3. Per the fourth rule, we initialize the constructors. In this case, this involves calling the constructor on line 5, which in turn calls the overloaded constructor on line 14. The result is that EC is printed, as the constructor bodies are unwound in the reverse order that they were called.
+
+The process then continues with the initialization of the Okapi instance itself. Per the third and fourth rules, H is printed on line 25, and G is printed on line 23, respectively. The process is a lot simpler when you don’t have to call any overloaded constructors. Line 29 then inserts a line break in the output. Finally, line 30 initializes a new Okapi object. The order and initialization are the same as line 28, sans the class initialization, so BECHG is printed again. Notice that D is never printed, as only two of the three constructors in the superclass GiraffeFamily are called.
+=====================================
+If the first statement of a constructor is not a call to this() or super(), then the compiler will insert a no-argument super() as the first statement of the constructor.
+
+If the parent class doesn’t have a no-argument constructor, then every constructor in the child class must start with an explicit this() or super() constructor call.
+If the parent class doesn’t have a no-argument constructor and the child doesn’t define any constructors, then the child class will not compile.
+If a class only defines private constructors, then it cannot be extended by a top-level class.
+All final instance variables must be assigned a value exactly once by the end of the constructor. Any final instance variables not assigned a value will be reported as a compiler error on the line the constructor is declared.
+==========
+
+
+class Fish {
+   protected int size;
+   private int age;
+  
+   public Fish(int age) {
+      this.age = age;
+   }
+  
+   public int getAge() {
+      return age;
+   }
+}
+ 
+public class Shark extends Fish {
+   private int numberOfFins = 8;
+        
+   public Shark(int age) {
+      super(age);
+      this.size = 4;
+   }
+        
+   public void displaySharkDetails() {
+      System.out.print("Shark with age: "+getAge());
+      System.out.print(" and "+size+" meters long");
+      System.out.print(" with "+numberOfFins+" fins");
+      System.out.print(" and "+super.size+" meters long");
+   }
+}
+you can use this to access visible members of the current or a parent class, and you can use super to access visible members of a parent class.
+
+
+overriding a method occurs when a subclass declares a new implementation for an inherited method with the same signature and compatible return type. we have overloading: then u need diff signature(diff param tipes || num etc)
+
+public class Canine {
+   public double getAverageWeight() {
+      return 50;
+   }
+}
+public class Wolf extends Canine {
+   public double getAverageWeight() {
+      return super.getAverageWeight()+20;
+   }
+   public static void main(String[] args) {
+      System.out.println(new Canine().getAverageWeight());
+      System.out.println(new Wolf().getAverageWeight());
+   }
+}
+
+// 50 70
+
+but: 
+public double getAverageWeight() {
+   return getAverageWeight()+20;  // StackOverflowError
+} // recursion
+
+The method in the child class must be at least as accessible as the method in the parent class.
+The method in the child class may not declare a checked exception that is new or broader than the class of any exception declared in the parent class method.
+If the method returns a value, it must be the same or a subtype of the method in the parent class, known as covariant return types.
+
+When discussing inheritance and polymorphism, we often use the word subtype rather than subclass, since Java includes interfaces. A subtype is the relationship between two types where one type inherits the other. If we define X to be a subtype of Y, then one of the following is true:
+
+X and Y are classes, and X is a subclass of Y.
+
+X and Y are interfaces, and X is a subinterface of Y.
+
+X is a class and Y is an interface, and X implements Y (either directly or through an inherited class).
+
+Likewise, a supertype is the reciprocal relationship between two types where one type is the ancestor of the other
+Remember, a subclass is a subtype, but not all subtypes are subclasses.
+
+If two methods have the same name but different signatures, the methods are overloaded, not overridden. Overloaded methods are considered independent and do not share the same polymorphic properties as overridden methods.
+
+=============
+
+public class Bird {
+   public void fly() {
+      System.out.println("Bird is flying");
+   }
+   public void eat(int food) {
+      System.out.println("Bird is eating "+food+" units of food");
+   }
+}
+ 
+public class Eagle extends Bird {
+   public int fly(int height) {
+      System.out.println("Bird is flying at "+height+" meters");
+      return height;
+   }
+   public int eat(int food) {  // DOES NOT COMPILE
+      System.out.println("Bird is eating "+food+" units of food");
+      return food;
+   }
+}
+==========
+
+The eat() method is overridden in the subclass Eagle, since the signature is the same as it is in the parent class Bird—they both take a single argument int. Because the method is being overridden, the return type of the method in the Eagle class must be compatible with the return type for the method in the Bird class. In this example, the return type int is not a subtype of void; therefore, the compiler will throw an exception on this method definition.
+
+==============
+The overridden hideInShell() method declares an IllegalArgumentException, which is a superclass of the exception declared in the inherited method, NumberFormatException. While this seems like an invalid override since the overridden method uses a broader exception, both of these exceptions are unchecked, so the third rule does not apply.
+=========
+String implements the CharSequence interface,
+
+public class LongTailAnimal {
+   protected void chew(List<Object> input) {}
+   protected void chew(List<Double> input) {}  // DOES NOT COMPILE
+}
+
+==========
+
+
+public class LongTailAnimal {
+   protected void chew(List<Object> input) {}
+}
+ 
+public class Anteater extends LongTailAnimal {
+   protected void chew(List<Double> input) {}  // DOES NOT COMPILE
+}
+the generic type is dropped, and it appears as an invalid overloaded method.
+===========
+On the other hand, you can override a method with generic parameters, but you must match the signature including the generic type exactly.
+
+public class LongTailAnimal {
+   protected void chew(List<Object> input) {}
+}
+ 
+public class Anteater extends LongTailAnimal {
+   protected void chew(ArrayList<Double> input) {}
+}
+Yes, these classes do compile. However, they are considered overloaded methods, not overridden methods, because the signature is not the same. Type erasure does not change the fact that one of the method arguments is a List and the other is an ArrayList.
+
+void sing1(List<?> v) {}                 // unbounded wildcard
+void sing2(List<? super String> v) {}    // lower bounded wildcard
+void sing3(List<? extends String> v) {}  // upper bounded wildcard
+
+==================
+
+public class Mammal {
+   public List<CharSequence> play() { ... }
+   public CharSequence sleep() { ... }
+}
+ 
+public class Monkey extends Mammal {
+   public ArrayList<CharSequence> play() { ... }
+}
+ 
+public class Goat extends Mammal {
+   public List<String> play() { ... }  // DOES NOT COMPILE
+   public String sleep() { ... }
+}
+
+For the return types to be covariant, the generic type parameter must match. 
+Even though String is a subtype of CharSequence, it does not exactly match the generic type defined in the Mammal class. Therefore, this is considered an invalid override.
+
+Notice that the sleep() method in the Goat class does compile since String is a subtype of CharSequence. This example shows that covariance applies to the return type, just not the generic parameter type.
+, making sure the generic types match for overridden methods.
+And remember, generic methods cannot be overloaded by changing the generic parameter type only.
+
+====================
+HIDING STATIC METHODS
+==================
+A hidden method occurs when a child class defines a static method with the same name and signature as an inherited static method defined in a parent class. Method hiding is similar but not exactly the same as method overriding. The previous four rules for overriding a method must be followed when a method is hidden. In addition, a new rule is added for hiding a method:
+
+The method defined in the child class must be marked as static if it is marked as static in a parent class.
+
+public class Bear {
+   public static void eat() {
+      System.out.println("Bear is eating");
+   }
+}
+ 
+public class Panda extends Bear {
+   public static void eat() {
+      System.out.println("Panda is chewing");
+   }
+   public static void main(String[] args) {
+      eat();
+   }
+}
+
+ The eat() method in the Panda class hides the eat() method in the Bear class, printing "Panda is chewing" at runtime. Because they are both marked as static, this is not considered an overridden method. That said, there is still some inheritance going on. If you remove the eat() method in the Panda class, then the program prints "Bear is eating" at runtime.
+====================
+
+
+public class Bear {
+   public static void sneeze() {
+      System.out.println("Bear is sneezing");
+   }
+   public void hibernate() {
+      System.out.println("Bear is hibernating");
+   }
+   public static void laugh() {
+      System.out.println("Bear is laughing");
+   }
+}
+ 
+public class Panda extends Bear {
+   public void sneeze() {           // DOES NOT COMPILE
+      System.out.println("Panda sneezes quietly");
+   }
+   public static void hibernate() { // DOES NOT COMPILE
+      System.out.println("Panda is going to sleep");
+   }
+   protected static void laugh() {  // DOES NOT COMPILE
+      System.out.println("Panda is laughing");
+   }
+}
+===================
+By marking a method final, you forbid a child class from replacing this method.
+=================
+
+public class Bird {
+   public final boolean hasFeathers() {
+      return true;
+   }
+   public final static void flyAway() {}
+}
+ 
+public class Penguin extends Bird {
+   public final boolean hasFeathers() {  // DOES NOT COMPILE
+      return false;
+   }
+   public final static void flyAway() {}  // DOES NOT COMPILE
+}
+=======================
+
+As when hiding a static method, you can’t override a variable; you can only hide it. Let’s take a look at a hidden variable. What do you think the following application prints?
+
+
+class Carnivore {
+   protected boolean hasFur = false;
+}
+ 
+public class Meerkat extends Carnivore {
+   protected boolean hasFur = true;
+  
+   public static void main(String[] args) {
+      Meerkat m = new Meerkat();
+      Carnivore c = m;
+      System.out.println(m.hasFur);
+      System.out.println(c.hasFur);
+   }
+}
+
+
+It prints true followed by false. Confused? Both of these classes define a hasFur variable, but with different values. Even though there is only one object created by the main() method, both variables exist independently of each other. The output changes depending on the reference variable used.
+================
+POLYMORPHISM
+polymorphism, the property of an object to take on many different forms
+============
+ Java object may be accessed using a reference with the same type as the object, a reference that is a superclass of the object, or a reference that defines an interface the object implements, either directly or through a superclass. Furthermore, a cast is not required if the object is being reassigned to a super type or interface of the object.
+
+public class Primate {
+   public boolean hasHair() {
+      return true;
+   }
+}
+ 
+public interface HasTail {
+   public abstract boolean isTailStriped();
+}
+ 
+public class Lemur extends Primate implements HasTail {
+   public boolean isTailStriped() {
+      return false;
+   }
+   public int age = 10;
+   public static void main(String[] args) {
+      Lemur lemur = new Lemur();
+      System.out.println(lemur.age);
+ 
+      HasTail hasTail = lemur;
+      System.out.println(hasTail.isTailStriped());
+ 
+      Primate primate = lemur;
+      System.out.println(primate.hasHair());
+   }
+}
+
+
+   HasTail hasTail = lemur;
+      System.out.println(hasTail.age);             // DOES NOT COMPILE
+ 
+      Primate primate = lemur;
+      System.out.println(primate.isTailStriped()); // DOES NOT COMPILE
+
+
+In Java, all objects are accessed by reference, so as a developer you never have direct access to the object itself. Conceptually, though, you should consider the object as the entity that exists in memory, allocated by the Java runtime environment. Regardless of the type of the reference you have for the object in memory, the object itself doesn’t change. For example, since all objects inherit java.lang.Object, they can all be reassigned to java.lang.Object, as shown in the following example:
+
+
+      Lemur lemur = new Lemur();
+ 
+      Object lemurAsObject = lemur;
+=============
+
+Even though the Lemur object has been assigned to a reference with a different type, the object itself has not changed and still exists as a Lemur object in memory. What has changed, then, is our ability to access methods within the Lemur class with the lemurAsObject reference. Without an explicit cast back to Lemur, as you’ll see in the next section, we no longer have access to the Lemur properties of the object.
+=====================
+
+ Primate primate = new Lemur();  // Implicit Cast
+ 
+      Lemur lemur2 = primate;         // DOES NOT COMPILE
+      System.out.println(lemur2.age);
+ 
+      Lemur lemur3 = (Lemur)primate;  // Explicit Cast
+      System.out.println(lemur3.age);
+In this example, we first create a Lemur obje
+============
+
+Casting a reference from a subtype to a supertype doesn’t require an explicit cast.
+
+Casting a reference from a supertype to a subtype requires an explicit cast.
+
+The compiler disallows casts to an unrelated class.
+
+At runtime, an invalid cast of a reference to an unrelated type results in a ClassCastException being thrown.
+==============
+
+public class Rodent {}
+ 
+public class Capybara extends Rodent {
+   public static void main(String[] args) {
+      Rodent rodent = new Rodent();
+      Capybara capybara = (Capybara)rodent;  // ClassCastException
+   }
+}
+This code creates an instance of Rodent and then tries to cast it to a subclass of Rodent, Capybara. Although this code will compile, it will throw a ClassCastException at runtime since the object being referenced is not an instance of the Capybara class. The thing to keep in mind in this example is the Rodent object created does not inherit the Capybara class in any way.
+
+========================
+
+if(rodent instanceof Capybara) {
+         Capybara capybara = (Capybara)rodent;
+      }
+
+Just as the compiler does not allow casting an object to unrelated types, it also does not allow instanceof to be used with unrelated types.
+   public static void main(String[] args) {
+      Fish fish = new Fish();
+      if (fish instanceof Bird) {  // DOES NOT COMPILE
+         Bird bird = (Bird) fish;  // DOES NOT COMPILE
+      }
+   }
+=========================================
+
+you can choose to limit polymorphic behavior by marking methods final, which prevents them from being overridden by a subclass.
+=============================
+
+class Penguin {
+   public static int getHeight() { return 3; }
+   public void printInfo() {
+      System.out.println(this.getHeight());
+   }
+}
+public class CrestedPenguin extends Penguin {
+   public static int getHeight() { return 8; }
+   public static void main(String... fish) {
+      new CrestedPenguin().printInfo();
+   }
+} // output: 3
+
+in printInfo() we use this. which is the Penguin
+
+In printInfo(), even though this refers to the CrestedPenguin instance, the getHeight() method is static, and static methods are resolved based on the reference type (Penguin). Therefore, this.getHeight() calls Penguin.getHeight(), which returns 3
+ 
+=================
+!! NB !!
+Overridden instance methods and hidden static methods must have the same signature (the name and method parameters must match)
+===========
+Which of the following complete the constructor so that this code prints out 50? (Choose all that apply.)
+
+
+  class Speedster {
+     int numSpots;
+  }
+  public class Cheetah extends Speedster {
+     int numSpots;
+
+     public Cheetah(int numSpots) {
+        // INSERT CODE HERE
+     }
+
+     public static void main(String[] args) {
+        Speedster s = new Cheetah(50);
+        System.out.print(s.numSpots);
+     }
+  }
+numSpots = numSpots;
+
+numSpots = this.numSpots;
+
+this.numSpots = numSpots;
+
+numSpots = super.numSpots;
+
+super.numSpots = numSpots;
+
+The code does not compile, regardless of the code inserted into the constructor.
+
+None of the above
+
+Answer:
+E.  An instance variable with the same name as an inherited instance variable is hidden, not overridden. This means that both variables exist, and the one that is used depends on the location and reference type. Because the main() method uses a reference type of Speedster to access the numSpots variable, the variable in the Speedster class, not the Cheetah class, must be set to 50. Option A is incorrect, as it reassigns the method parameter to itself. Option B is incorrect, as it assigns the method parameter the value of the instance variable in Cheetah, which is 0. Option C is incorrect, as it assigns the value to the instance variable in Cheetah, not Speedster. Option D is incorrect, as it assigns the method parameter the value of the instance variable in Speedster, which is 0. Options A, B, C, and D all print 0 at runtime. Option E is the only correct answer, as it assigns the instance variable numSpots in the Speedster class a value of 50. The numSpots variable in the Speedster class is then correctly referenced in the main() method, printing 50 at runtime.
+=============================
+  1:  class Arthropod {
+  2:     protected void printName(long input) {
+  3:        System.out.print("Arthropod");
+  4:     }
+  5:     void printName(int input) {
+  6:        System.out.print("Spooky");
+  7:     } }
+
+  8:  public class Spider extends Arthropod {
+  9:     protected void printName(int input) {
+  10:       System.out.print("Spider");
+  11:    }
+  12:    public static void main(String[] args) {
+  13:       Arthropod a = new Spider();
+  14:       a.printName((short)4);
+  15:       a.printName(4);
+  16:       a.printName(5L);
+  17:    } }
+  // SpiderSpiderArthropod
+
+=============================
+
+
+!! NB !!
+Which of the following statements about overridden methods are true?
+The signature must match exactly, making option A incorrect. 
+
+An overridden method must not declare any new checked exceptions or a checked exception that is broader than the inherited method.
+
+verridden methods must have covariant return types, and only void is covariant with void, 
+=================================================
+
+ valid override of a method with generic arguments must have a return type that is covariant, with matching generic type parameters. 
+
+======================
+  1:  public class Rodent {
+  2:     public Rodent(var x) {}
+  3:     protected static Integer chew() throws Exception {
+  4:        System.out.println("Rodent is chewing");
+  5:        return 1;
+  6:     }
+  7:  }
+  8:  class Beaver extends Rodent {
+  9:     public Number chew() throws RuntimeException {
+  10:       System.out.println("Beaver is chewing on wood");
+  11:       return 2;
+  12:    } }
+
+The first compilation error is on line 2, as var cannot be used as a constructor argument type. The second compilation error is on line 8. Since Rodent declares at least one constructor and it is not a no-argument constructor, Beaver must declare a constructor with an explicit call to a super() constructor. Line 9 contains two compilation errors. First, the return types are not covariant since Number is a supertype, not a subtype, of Integer. Second, the inherited method is static, but the overridden method is not, making this an invalid override. The code contains four compilation errors, although they are limited to three lines, making option D the correct answer.
+=============================
+
+An object may be cast to a subtype without an explicit cast.
+
+B !! If the type of a method argument is an interface, then a reference variable that implements the interface may be passed to the method.
+
+C !! A method that takes a parameter with type java.lang.Object can be passed any variable.
+
+All cast exceptions can be detected at compile-time.
+
+E !! By defining a final instance method in the superclass, you guarantee that the specific method will be called in the parent class at runtime.
+
+Polymorphism applies only to classes, not interfaces.
+
+Answer:
+B, C, E. An object may be cast to a supertype without an explicit cast but requires an explicit cast to be cast to a subtype, making option A incorrect. Option B is correct, as an interface method argument may take any reference type that implements the interface. Option C is also correct, as a method that accepts java.lang.Object can accept any variable since all objects inherit java.lang.Object. This also includes primitives, which can be autoboxed to their wrapper classes. Some cast exceptions can be detected as errors at compile-time, but others can only be detected at runtime, so option D is incorrect. Due to the nature of polymorphism, a final instance method cannot be overridden in a subclass, so calls in the parent class will not be replaced, making option E correct. Finally, polymorphism applies to classes and interfaces alike, making option F incorrect.
+
+==========================
+
+Which of the following statements can be inserted in the blank so that the code will compile successfully? (Choose all that apply.)
+
+
+  public class Snake {}
+  public class Cobra extends Snake {}
+  public class GardenSnake extends Cobra {}
+  public class SnakeHandler {
+     private Snake snake;
+     public void setSnake(Snake snake) { this.snake = snake; }
+     public static void main(String[] args) {
+        new SnakeHandler().setSnake(_____________);
+     }
+  }
+new Cobra()
+
+new Snake()
+
+new Object()
+
+new String("Snake")
+
+new GardenSnake()
+
+null
+
+None of the above. The class does not compile, regardless of the value inserted in the blank.
+
+Answer:
+A, B, E, F. The code compiles if the correct type is inserted in the blank, so option G is incorrect. The setSnake() method requires an instance of Snake or any subtype of Snake. The Cobra class is a subclass of Snake, so it is a subtype. The GardenSnake class is a subclass of Cobra, which, in turn, is a subclass of Snake, also making GardenSnake a subtype of Snake. For these reasons, options A, B, and E are correct. Option C is incorrect because Object is a supertype of Snake, not a subtype, as all instances inherit Object. Option D is incorrect as String is an unrelated class and does not inherit Snake. Finally, a null value can always be passed as an object value, regardless of type, so option F is correct.
+=====================
+
+The compiler will insert a default no-argument constructor if the class compiles and does not define any constructors.
+=====================
+
+!! NB !!
+A valid override of a method with generic arguments must have the same signature with the same generic types. Because of type erasure, the generic type parameter will be removed when the code is compiled. Therefore, the compiler requires that the types match.
+Type erasure in Java means that during compilation, generic types (like <T>) are replaced with their bounds or Object if no bounds are specified. This removes the generic type information, making all instances of a generic class look the same at runtime. Because of this, method overrides must match exactly in signature and generic types at compile time to avoid ambiguity.
+========================
+
+variables can only be hidden, not overridden via inheritance
+variables do not throw exceptions
+=================================
+
+ And this() can only be called from a constructor in the same class.
+The outcome is 3 because of method overriding and runtime polymorphism. Here's the step-by-step explanation:
+
+Object Creation: Bird p = new Macaw(4); creates a Macaw object, but p is referenced as a Bird.
+
+Method Call: p.fly() calls the fly() method. Due to runtime polymorphism, the fly() method of the Macaw class is invoked, not Parrot or Bird.
+
+Return Type: The Macaw class's fly() method returns a new Macaw object with feathers = 3.
+
+Casting: The result is cast to Parrot, but the object remains a Macaw with feathers = 3.
+
+Output: ((Parrot)p.fly()).feathers prints 3 because the actual object is a Macaw, not a Parrot.
+
+So, despite the cast, the method returns a Macaw object, hence feathers is 3.
+===============
+
+  1:  class Person {
+  2:     static String name;
+  3:     void setName(String q) { name = q; } }
+  4:  public class Child extends Person {
+  5:     static String name;
+  6:     void setName(String w) { name = w; }
+  7:     public static void main(String[] p) {
+  8:        final Child m = new Child();
+  9:        final Person t = m;
+  10:       m.name = "Elysia";
+  11:       t.name = "Sophia";
+  12:       m.setName("Webby");
+  13:       t.setName("Olivia");
+  14:       System.out.println(m.name + " " + t.name);
+  15:    } }
+
+final Child m = new Child();
+final Person t = m;
+These references cannot be reassigned to point to different objects, but you can still modify the object's internal state (like its fields).
+static String name; in Person and Child means both classes have their own name field, shared across all instances of their respective classes.
+
+person and child both point to the same object in memory because person = child. However, in this case, the confusion arises from how static fields work in Java.
+Static Fields: Static fields belong to the class, not to any specific instance of the class. This means that even though person and child refer to the same object in memory, they access different static fields based on their class reference.
+
+Separate Static Fields:
+
+Person.name is a static field in the Person class.
+Child.name is a separate static field in the Child class.
+The Child class overrides the setName() method and hides the static name variable defined in the inherited Person class. Since variables are only hidden, not overridden, there are two distinct name variables accessible, depending on the location and reference type. Line 8 creates a Child instance, which is implicitly cast to a Person reference type on line 9. Line 10 uses the Child reference type, updating Child.name to Elysia. Line 11 uses the Person reference type, updating Person.name to Sophia. Lines 12 and 13 both call the overridden setName() instance method declared on line 6. This sets Child.name to Webby on line 12 and then to Olivia on line 13. The final values of Child.name and Person.name are Olivia and Sophia, respectively, making option D the correct answer.
+=======================
+
+It cannot be determined until runtime which overridden method will be executed in a parent class.
+
+It cannot be determined until runtime which hidden method will be executed in a parent class.
+
+Marking a method static prevents it from being overridden or hidden.
+
+Marking a method final prevents it from being overridden or hidden.
+
+The reference type of the variable determines which overridden method will be called at runtime.
+
+The reference type of the variable determines which hidden method will be called at runtime.
+
+Answer:
+A, D, F. Polymorphism is the property of an object to take on many forms. Part of polymorphism is that methods are replaced through overriding wherever they are called, regardless of whether they’re in a parent or child class. For this reason, option A is correct, and option E incorrect. With hidden static methods, Java relies on the location and reference type to determine which method is called, making option B incorrect and F correct. Finally, making a method final, not static, prevents it from being overridden, making option D correct and option C incorrect.
+===============
+
+It cannot be determined until runtime which overridden method will be executed in a parent class.
+
+It cannot be determined until runtime which hidden method will be executed in a parent class.
+
+Marking a method static prevents it from being overridden or hidden.
+
+Marking a method final prevents it from being overridden or hidden.
+
+The reference type of the variable determines which overridden method will be called at runtime.
+
+The reference type of the variable determines which hidden method will be called at runtime.
+
+Answer:
+A, D, F. Polymorphism is the property of an object to take on many forms. Part of polymorphism is that methods are replaced through overriding wherever they are called, regardless of whether they’re in a parent or child class. For this reason, option A is correct, and option E incorrect. With hidden static methods, Java relies on the location and reference type to determine which method is called, making option B incorrect and F correct. Finally, making a method final, not static, prevents it from being overridden, making option D correct and option C incorrect.
+================
+
+abstract class is one that cannot be instantiated.
+=================
+Java does not permit a class or method to be marked both abstract and final
+==================
+
+A method cannot be marked as both abstract and private.
+===========
+While it is not possible to declare a method abstract and private, it is possible (albeit redundant) to declare a method final and private.
+====================
+e subclass cannot reduce the visibility of the parent method, 
+=================
+static method cannot be overridden
+===================
+ abstract static void swim();  // DOES NOT COMPILE==== cant be abstract and static cause cant be overriden
+=====================
+abstract class Mammal {
+   abstract void showHorn();
+   abstract void eatLeaf();
+}
+ 
+abstract class Rhino extends Mammal {
+   void showHorn() {}
+}
+ 
+public class BlackRhino extends Rhino {
+   void eatLeaf() {}
+}
+============
+All top-level types, including abstract classes, cannot be marked protected or private.
+Abstract classes cannot be marked final.
+
+Abstract classes may include zero or more abstract and nonabstract methods.
+=====
+An interface can also include constant variables.
+===========
+Both abstract methods and constant variables included with an interface are implicitly assumed to be public.
+===========
+With Java 8, interfaces were updated to include static and default methods. 
+A default method is one in which the interface method has a body and is not marked abstract. It was added for backward compatibility, allowing an older class to use a new version of an interface that contains a new method, without having to modify the existing class.
+ interfaces were updated to support private and private static methods. 
+=================
+public abstract interface WalksOnTwoLegs {}
+It compiles because interfaces are not required to define any methods.
+interface HasBigEyes extends Nocturnal, CanFly {}
+===========
+INTERFACES  also include various static members, including constants that do not require an instance of the class to use.
+===================
+Like classes and interfaces, enums can have more complex formations including methods, private constructors, and instance variables. 
+===================
+ an implicit modifier is one that the compiler will automatically insert.
+
+Interfaces are assumed to be abstract.
+
+Interface variables are assumed to be public, static, and final.
+
+Interface methods without a body are assumed to be abstract and public.
+========================================
+public interface Dance {
+   private int count = 4;  // DOES NOT COMPILE
+   protected void step();  // DOES NOT COMPILE
+}
+===========
+ When working with class members, omitting the access modifier indicates default (package-private) access. When working with interface members, though, the lack of access modifier always indicates public access.
+===============
+Even though abstract classes and interfaces are both considered abstract types, only interfaces make use of implicit modifiers.
+=============
+abstract class Husky {
+   abstract void play();
+}
+ 
+interface Poodle {
+   void play();
+}
+Both of these method definitions are considered abstract. That said, the Husky class will not compile if the play() method is not marked abstract, whereas the method in the Poodle interface will compile with or without the abstract modifier.
+
+What about the access level of the play() method? Even though neither has an access modifier, they do not have the same access level. The play() method in Husky class is considered default (package-private), whereas the method in the Poodle interface is assumed to be public
+============
+abstract class Husky {
+   abstract void play();
+}
+ 
+interface Poodle {
+   void play();
+}
+class Webby extends Husky {
+   void play() {}
+}
+ 
+class Georgette implements Poodle {
+   void play() {} // doesnt compile: in Poodle play() is public but here default-package-private
+}
+============
+public interface Herbivore {
+   public void eatPlants();
+}
+ 
+public interface Omnivore {
+   public void eatPlants();
+   public void eatMeat();
+}
+public class Bear implements Herbivore, Omnivore {
+   public void eatMeat() {
+      System.out.println("Eating meat");
+   }
+   public void eatPlants() { // compiles
+      System.out.println("Eating plants");
+   }
+}
+=======
+If two abstract interface methods have identical behaviors—or in this case the same method declaration—you just need to be able to create a single method that overrides both inherited abstract methods at the same time.
+============
+What if the duplicate methods have different signatures? If the method name is the same but the input parameters are different, there is no conflict because this is considered a method overload. 
+
+public interface Herbivore {
+   public int eatPlants(int quantity);
+}
+ 
+public interface Omnivore {
+   public void eatPlants();
+}
+ 
+public class Bear implements Herbivore, Omnivore {
+   public int eatPlants(int quantity) {
+      System.out.println("Eating plants: "+quantity);
+      return quantity;
+   }
+   public void eatPlants() {
+      System.out.println("Eating plants");
+   }
+}
+we see that the class that implements both interfaces must provide implementations of both versions of eatPlants(), since they are considered separate methods
+=============
+interface Dances {
+   String swingArms();
+}
+interface EatsFish {
+   CharSequence swingArms();
+}
+ 
+public class Penguin implements Dances, EatsFish {
+   public String swingArms() {
+      return "swing!";
+   }
+}
+In this example, the Penguin class compiles. The Dances version of the swingArms() method is trivially overridden in the Penguin class, as the declaration in Dances and Penguin have the same method declarations. The EatsFish version of swingArms() is also overridden as String and CharSequence are covariant return types.
+===============
+interface Dances {
+   int countMoves();
+}
+interface EatsFish {
+   boolean countMoves();
+}
+ 
+public class Penguin implements Dances, EatsFish { // DOES NOT COMPILE
+   ...
+}
+Since it is not possible to define a version of countMoves() that returns both int and boolean, there is no implementation of the Penguin that will allow this declaration to compile. It is the equivalent of trying to define two methods in the same class with the same signature and different return types.
+=====================
+interface LongEars {
+   int softSkin();
+}
+interface LongNose {
+   void softSkin();
+}
+ 
+interface Donkey extends LongEars, LongNose {}  // DOES NOT COMPILE
+ 
+abstract class Aardvark implements LongEars, LongNose {}
+                                                // DOES NOT COMPILE
+All of the types in this example are abstract, with none being concrete. Despite the fact they are all abstract, the compiler detects that Donkey and Aardvark contain incompatible methods and prevents them from compiling.
+=========================
+
+the following is not permitted as the compiler detects that the String and Long class cannot be related:
+
+String lion = "Bert";
+Long tiger = (Long)lion;
+=====================
+1: interface Canine {}
+2: class Dog implements Canine {}
+3: class Wolf implements Canine {}
+4:
+5: public class BadCasts {
+6:    public static void main(String[] args) {
+7:       Canine canine = new Wolf();
+8:       Canine badDog = (Dog)canine;
+9:    } }
+In this program, a Wolf object is created and then assigned to a Canine reference type on line 7. Because of polymorphism, Java cannot be sure which specific class type the canine instance on line 8 is. Therefore, it allows the invalid cast to the Dog reference type, even though Dog and Wolf are not related. The code compiles but throws a ClassCastException at runtime
+===========================
+An interface reference may be cast to any reference that inherits the interface, although this may produce an exception at runtime if the classes aren’t related.
+====================
+The compiler will only report an unrelated type error for an instanceof operation with an interface on the right side if the reference on the left side is a final class that does not inherit the interface.
+================================
+An interface method with a body must be marked default, private, static, or private static ===========================
+Implementing an abstract method in a subclass follows the same rules for overriding a method, including covariant return types, exception declarations, etc.
+=======================
+Interface variables are assumed to be public, static, and final.
+
+Because interface variables are marked final, they must be initialized with a value when they are declared.
+===============================
+The advantage of using a member inner class in this example is that the Zoo class completely manages the lifecycle of the Ticket class.
+======================
+ interface CanHop {}
+  public class Frog implements CanHop {
+     public static void main(String[] args) {
+         ___________ frog = new TurtleFrog();
+     }
+  }
+  class BrazilianHornedFrog extends Frog {}
+  class TurtleFrog extends Frog {}
+Frog
+
+TurtleFrog
+
+BrazilianHornedFrog
+
+CanHop
+
+Object
+
+Long
+he blank can be filled with any class or interface that is a supertype of TurtleFrog. Option A is the direct superclass of TurtleFrog, and option B is the same class, so both are correct. BrazilianHornedFrog is not a superclass of TurtleFrog, so option C is incorrect. TurtleFrog inherits the CanHop interface, so option D is correct. All classes inherit Object, so option E is also correct. Finally, Long is an unrelated class that is not a superclass of TurtleFrog and is therefore incorrect.
+================
+ All interface variables are implicitly assumed to be public, static, and final, 
+==================
+abstract class Nocturnal {
+    abstract boolean isBlind();
+}
+
+class Owl extends Nocturnal {
+    public boolean isBlind() {
+        return false;
+    }
+
+    public static void main(String[] args) {
+        var nocturnal = (Nocturnal) new Owl();
+        System.out.println(nocturnal.isBlind());
+        }
+} !! COMPILES !!
+==========================================
+
+Options A and D are incorrect as static and final are not access modifiers.
+Which access modifiers can be applied to member inner classes? (Choose all that apply.)
+
+static
+
+public
+
+default (package-private)
+
+final
+
+protected
+
+private
+===================
+. Line 13 does not compile because the two inherited fly() methods, declared on line 6 and 10, conflict with each other. The compiler recognizes that it is impossible to create a class that overrides fly() to return both String and int, since they are not covariant return types, and therefore blocks the Falcon class from compiling. For this reason:
+The code will not compile because of line 13. and 6(missing ;)
+  5:  public interface CanFly {
+  6:     int fly()
+  7:     String fly(int distance);
+  8:  }
+  9:  interface HasWings {
+  10:    abstract String fly();
+  11:    public abstract Object getWingSpan();
+  12: }
+  13: abstract class Falcon implements CanFly, HasWings {}
+===================
+Line 14 does compile, even though Apple and Tangerine are unrelated types. While the compiler can enforce unrelated type rules for classes, it has limited ability to do so for interfaces, since there may be a subclass of Tangerine that implements the Apple interface. Therefore, this line would print false if the rest of the code compiled.
+BUT....  Line 15 does not compile. Since Citrus is marked final, the compiler knows that there cannot be a subclass of Citrus that implements Apple, so it can enforce the unrelated type rule. 
+  1:  interface Apple {}
+  2:  interface Orange {}
+  3:  class Gala implements Apple {}
+  4:  class Tangerine implements Orange {}
+  5:  final class Citrus extends Tangerine {}
+  6:  public class FruitStand {
+  7:     public static void main(String... farm) {
+  8:        Gala g = new Gala();
+  9:        Tangerine t = new Tangerine();
+  10:       Citrus c = new Citrus();
+  11:       System.out.print(t instanceof Gala);
+  12:       System.out.print(c instanceof Tangerine);
+  13:       System.out.print(g instanceof Apple);
+  14:       System.out.print(t instanceof Apple);
+  15:       System.out.print(c instanceof Apple);
+  16: } }
+========================
+
+DARHIN:
+Ik studeer voor het Java 11 OCP-examen. Er is veel te leren, maar ik ga in een goed tempo. Ik weet nog niet zeker wanneer ik klaar zal zijn voor het examen; het hangt ook af van mijn werk. Ik zal een stagiair begeleiden met mijn oude project. Als alles goed gaat, verwacht ik in oktober klaar te zijn voor het examen."
+"Mijn naam is Petya, en ik programmeer al vijf jaar. Eerst heb ik JavaScript geleerd. Ik heb 2,5 jaar als frontend engineer gewerkt met JavaScript, PHP, SQL en gebruik gemaakt van GitHub. Daarna wilde ik meer leren over back-end development. Dus heb ik zes maanden lang, 18 uur per week, C gestudeerd (alleen door projecten te doen: het was heel interessant en uitdagend). Daarna heb ik de Make IT Work-opleiding gedaan. Het was makkelijk voor mij, maar goed. Nu zoek ik, als het mogelijk is, iets uitdagends te doen met het schrijven van Java/Kotlin-code en mezelf verder te ontwikkelen als medior of senior Java-ontwikkelaar. Ik heb al genoeg programmeerervaring en heb weinig tijd nodig om Java te schrijven en te implementeren, debugging te doen en problemen op te lossen. Ik heb Maaike leren kennen, en ze vertelde me dat er bij de overheid veel werk is voor Java-ontwikkelaars. Is dat nu waar? :)"
+Dit jaar heb ik ongeveer zes maanden gewerkt aan een microservicesproject als DevOps-engineer. Maar dit is niet echt iets voor mij; ik heb programmeren gestudeerd en wil me specialiseren in coderen. Ik kan het beste bijdragen door code te schrijven, dit is mijn passie en mijn sterke punt. Ik begrijp dat soms afhankelijkheden moeten worden aangepast en dat kennis van cloudtechnologie nodig is. Maar ik wil niet dat dit 100% van mijn werk uitmaakt.
+Tijdens de volledige zes maanden heb ik geen enkele regel Go-code geschreven (dit was de programmeertaal van de app).
+"Ik spreek niet goed Nederlands, maar ik begrijp bijna alles snel. En ik begrijp software engineering. Als er een gesprek daarover is, begrijp ik het, alleen moet ik meer proberen Nederlands te spreken. Ik heb één keer per week Nederlandse les bij Berlitz, en dit is voor niveau A2/B1.
+"Een paar keer hebben onze klanten, zoals de haven van Rotterdam, presentaties in het Nederlands gegeven: ik begreep alles."
+
+situatie, taak, ack, .... resultaat
+ontslaah overheen
+
+  1:  interface Jump {
+  2:     static public int MAX = 3;
+  3:  }
+  4:  public abstract class Whale implements Jump {
+  5:     public abstract void dive();
+  6:     public static void main(String[] args) {
+  7:        Whale whale = new Orca();
+  8:        whale.dive(3);
+  9:     }
+  10: }
+  11: class Orca extends Whale {
+  12:    public void dive() {
+  13:       System.out.println("Orca diving");
+  14:    }
+  15:    public void dive(int... depth) {
+  16:       System.out.println("Orca diving deeper "+MAX);
+  17: } }
+
+The Orca object is implicitly cast to a Whale reference on line 7. This is permitted because Orca is a subclass of Whale. By performing the cast, the whale reference on line 8 does not have access to the dive(int… depth) method. For this reason, line 8 does not compile.
+===============================
+a. Both can be extended using the extends keyword. // true
+b. All methods within them are assumed to be abstract. // false
+c. Both can contain public static final variables. // true
+d. The compiler will insert the implicit abstract modifier automatically on methods declared without a body, if they are not marked as such. // false: 
+e. Both interfaces and abstract classes can be declared with the abstract modifier. //true
+f. Both inherit java.lang.Object. // false: not for interfaces
+
+he compiler only inserts implicit modifiers for interfaces. For abstract classes, the abstract keyword must be used on any method that does not define a body. An abstract class must be declared with the abstract keyword, while the abstract keyword is optional for interfaces.
+ interfaces do not extend java.lang.Object.  If they did, then Java would support true multiple inheritance, with multiple possible parent constructors being called as part of initialization.
+=============
+
+  1:  abstract class Bird {
+  2:     private final void fly() { System.out.println("Bird"); }
+  3:     protected Bird() { System.out.print("Wow-"); }
+  4:  }
+  5:  public class Pelican extends Bird {
+  6:     public Pelican() { System.out.print("Oh-"); }
+  7:     protected void fly() { System.out.println("Pelican"); }
+  8:     public static void main(String[] args) {
+  9:        var chirp = new Pelican();
+  10:       chirp.fly();
+  11: } }
+D. The code compiles without issue. The question is making sure you know that superclass constructors are called in the same manner in abstract classes as they are in nonabstract classes. Line 9 calls the constructor on line 6. The compiler automatically inserts super() as the first line of the constructor defined on line 6. The program then calls the constructor on line 3 and prints Wow-. Control then returns to line 6, and Oh- is printed
+
+The inherited interface method getNumOfGills(int) is implicitly public; therefore, it must be declared public in any concrete class that implements the interface
+=========
+
+  1: interface Aquatic {
+  2:    int getNumOfGills(int p);
+  3: }
+  4: public class ClownFish implements Aquatic {
+  5:    String getNumOfGills() { return "14"; }
+  6:    public int getNumOfGills(int input) { return 15; }
+  7:    public static void main(String[] args) {
+  8:       System.out.println(new ClownFish().getNumOfGills(-1));
+  9: } }
+// output 15
+==================
+An inner class can be marked abstract or final, just like a regular class, making option A correct. A top-level type, such as a class, interface, or enum, can only be marked public or default (package-private), making option B incorrect. Option C is incorrect, as a member inner class can be marked public, and this would not make it a top-level class. A .java file may contain multiple top-level classes, making option D incorrect. The precise rule is that there is at most one public top-level type, and that type is used in the filename. 
+============
+n Java, multiple inheritance refers to the ability of a class to inherit features (such as methods and fields) from more than one parent class. However, Java does not support multiple inheritance with classes due to the potential for ambiguity and complexity that can arise from it. This is sometimes referred to as the "diamond problem," where a class could inherit conflicting methods or fields from two parent classes.
+with interfaces: yes
+==========
+a, e, f: A class cannot extend any interface, as a class can only extend other classes and interfaces can only extend other interfaces, making option A correct. Java enables only limited multiple inheritance with interfaces, making option B incorrect. True multiple inheritance would be if a class could extend multiple classes directly. Option C is incorrect, as interfaces are implicitly marked abstract. statements bellow:
+
+a. A class cannot extend multiple interfaces. // true: implement!!
+b. Java enables true multiple inheritance via interfaces. // false: read above
+c. Interfaces cannot be declared abstract. // false of course
+d. If an interface does not contain a constructor, the compiler will insert one automatically.
+// false of course
+e. An interface can extend multiple interfaces. // true
+An interface cannot be instantiated. // true
+====================
+  abstract class Camel {
+     void travel();
+  }
+  interface EatsGrass {
+     protected int chew();
+  }
+  abstract class Elephant {
+     abstract private class SleepsAlot {
+        abstract int sleep();
+     }
+  }
+  class Eagle {
+     abstract soar();
+  }
+The implementation of Elephant and its member inner class SleepsAlot are valid, making options A and D correct. Option B is incorrect, as Eagle must be marked abstract to contain an abstract method. Option C is also incorrect. Since the travel() method does not declare a body, it must be marked abstract in an abstract class. Finally, option E is incorrect, as interface methods are implicitly public. Marking them protected results in a compiler error.
+==================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
