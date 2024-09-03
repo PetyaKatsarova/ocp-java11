@@ -6451,6 +6451,687 @@ An interface cannot be instantiated. // true
   }
 The implementation of Elephant and its member inner class SleepsAlot are valid, making options A and D correct. Option B is incorrect, as Eagle must be marked abstract to contain an abstract method. Option C is also incorrect. Since the travel() method does not declare a body, it must be marked abstract in an abstract class. Finally, option E is incorrect, as interface methods are implicitly public. Marking them protected results in a compiler error.
 ==================
+EXCEPTION is an event that alters program flow.ava has a Throwable superclass for all objects that represent these events. Not all of them have the word exception in their class name, which can be confusing.
+=======================
+
+jva.lang.RuntimeExeption->java.lang.Exception-> java.lang.Throwable -> java.lang.Object 
+			  java.lang.Error -> same s abv
+Error means something went so horribly wrong that your program should not attempt to recover from it. For example, the disk drive “disappeared” or the program ran out of memory. These are abnormal conditions that you aren’t likely to encounter and cannot recover from.
+A checked exception is an exception that must be declared or handled by the application code where it is thrown.
+checked exceptions all inherit Exception but not RuntimeException. Checked exceptions tend to be more anticipated—for example, trying to read a file that doesn’t exist.
+Checked exceptions also include any class that inherits Throwable, but not Error or RuntimeException. For example, a class that directly extends Throwable would be a checked exception.
+checked exceptions must be handled or declared, while unchecked exceptions can be optionally handled or declared.
+void fall(int distance) throws IOException {
+   if(distance > 10) {
+      throw new IOException();
+   }
+}
+void fall(int distance) {
+   try {
+      if(distance > 10) {
+         throw new IOException();
+      }
+   } catch (Exception e) {
+      e.printStackTrace();
+   }
+}
+==========
+An unchecked exception is any exception that does not need to be declared or handled by the application code where it is thrown. Unchecked exceptions are often referred to as runtime exceptions, although in Java, unchecked exceptions include any class that inherits RuntimeException or Error.
+Runtime exceptions tend to be unexpected but not necessarily fatal. For example, accessing an invalid array index is unexpected. Even though they do inherit the Exception class, they are not checked exceptions.
+============
+We work with objects in Java so frequently, a NullPointerException can happen almost anywhere.
+The code will compile if you declare an unchecked exception. 
+================
+ Pay special attention to code that calls a method on a null reference or that references an invalid array or List index. If you spot this, you know the correct answer is that the code throws an exception at runtime.
+=================
+throw new Exception();
+throw new Exception("Ow! I fell.");
+throw new RuntimeException();
+throw new RuntimeException("Ow! I fell.");
+
+Exception e = new RuntimeException();
+throw e;
+=================
+3: try {
+4:    throw new RuntimeException();
+5:    throw new ArrayIndexOutOfBoundsException();  // DOES NOT COMPILE
+6: } catch (Exception e) {
+7: }
+Since line 4 throws an exception, line 5 can never be reached during runtime. The compiler recognizes this and reports an unreachable code error.
+===========================
+
+Type                                             Okay for program to catch?                    Is program required to handle or declare?
+
+Runtime e (Subclass of RuntimeException)               Yes                                                  No
+
+Checked e (Subclass of Exception but not subclass of RuntimeException) Yes                                  Yes
+
+Error  (Subclass of Error)                              No                                                     No
+=========================
+
+RuntimeException and its subclasses are unchecked exceptions that don’t have to be handled or declared. They can be thrown by the programmer or by the JVM. Common RuntimeException classes include the following:
+
+ArithmeticException Thrown when code attempts to divide by zero
+
+ArrayIndexOutOfBoundsException Thrown when code uses an illegal index to access an array
+
+ClassCastException Thrown when an attempt is made to cast an object to a class of which it is not an instance
+
+NullPointerException Thrown when there is a null reference where an object is required
+
+IllegalArgumentException Thrown by the programmer to indicate that a method has been passed an illegal or inappropriate argument
+
+NumberFormatException Subclass of IllegalArgumentException thrown when an attempt is made to convert a string to a numeric type but the string doesn’t have an appropriate format
+======================================
+String type = "moose";
+Integer number = (Integer) type;  // DOES NOT COMPILE
+When the cast fails at runtime, Java will throw a ClassCastException
+================
+Java provides methods to convert strings to numbers. When these are passed an invalid value, they throw a NumberFormatException.
+Integer.parseInt("abc");
+===========
+Errors are unchecked exceptions that extend the Error class. They are thrown by the JVM and should not be handled or declared. Errors are rare:
+ExceptionInInitializerError Thrown when a static initializer throws an exception and doesn’t handle it
+
+StackOverflowError Thrown when a method calls itself too many times (This is called infinite recursion because the method typically calls itself without end.)
+
+NoClassDefFoundError Thrown when a class that the code uses is available at compile time but not runtime
+==================
+Java runs static initializers the first time a class is used. If one of the static initializers throws an exception, Java can’t start using the class. It declares defeat by throwing an ExceptionInInitializerError. This code throws an ArrayIndexOutOfBounds in a static initializer:
+static {
+   int[] countsOfMoose = new int[3];
+   int num = countsOfMoose[-1];
+}
+public static void main(String... args) { }
+This code yields information about the error and the underlying exception:
+
+Exception in thread "main" java.lang.ExceptionInInitializerError
+Caused by: java.lang.ArrayIndexOutOfBoundsException: -1 out of bounds for length 3
+=========================
+public static void doNotCodeThis(int num) {
+   doNotCodeThis(1);
+}
+The output contains this line:
+Exception in thread "main" java.lang.StackOverflowError
+=====================
+A NoClassDefFoundError occurs when Java can’t find the class at runtime. Generally, this means a library available when the code was compiled is not available when the code is executed.
+================
+ void explore() {
+4:     try {
+5:        fall();
+6:        System.out.println("never get here");
+7:     } catch (RuntimeException e) {
+8:        getUp();
+9:     }
+10:    seeAnimals();
+11: }
+12: void fall() {  throw new RuntimeException(); }
+First, line 5 calls the fall() method. Line 12 throws an exception. This means Java jumps straight to the catch block, skipping line 6. The girl gets up on line 8. Now the try statement is over, and execution proceeds normally with line 10.
+=====================
+try  // DOES NOT COMPILE
+   fall();
+catch (Exception e)
+   System.out.println("get up"); // needs {}
+===============
+public void visitMonkeys() {
+   try {
+      seeAnimal();
+   } catch (ExhibitClosedForLunch e) {  // subclass exception
+      System.out.print("try back later");
+   } catch (ExhibitClosed e) {  // superclass exception
+      System.out.print("not today");
+   }
+} // sub/superclass swap: doesnt compile
+===================
+public void visitSnakes() {
+   try {
+   } catch (IllegalArgumentException e) {
+   } catch (NumberFormatException e) {  // DOES NOT COMPILE
+   }
+}
+NumberFormatException is a subclass of IllegalArgumentException?
+==============
+public void visitManatees() {
+   try {
+   } catch (NumberFormatException e1) {
+      System.out.println(e1);
+   } catch (IllegalArgumentException e2) {
+      System.out.println(e1);  // DOES NOT COMPILE because e1 is out of scope
+   }
+}
+=================
+multicatch block:
+public static void main(String[] args) {
+   try {
+      System.out.println(Integer.parseInt(args[1]));   } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
+
+      System.out.println("Missing or invalid input");
+   }
+}
+===============
+catch(Exception1 | Exception2 | Exception3 e)
+===================
+Java intends multi-catch to be used for exceptions that aren’t related, and it prevents you from specifying redundant types in a multi-catch. 
+try {
+   throw new IOException();
+} catch (FileNotFoundException | IOException p) {} // DOES NOT COMPILE
+Specifying it in the multi-catch is redundant, and the compiler gives a message such as this:
+The exception FileNotFoundException is already caught by the alternative IOException
+The one difference between multi-catch blocks and chaining catch blocks is that order does not matter for a multi-catch block within a single catch expression.
+===========================
+
+ try {
+38:    fall();
+39: } finally {
+40:    System.out.println("all better");
+41: }
+!! NB !! The catch block is not required if finally is present.A finally block is typically used to close resources such as files or databases
+===========
+
+12: int goHome() {
+13:    try {
+14:       // Optionally throw an exception here
+15:       System.out.print("1");
+16:       return -1;
+17:    } catch (Exception e) {
+18:       System.out.print("2");
+19:       return -2;
+20:    } finally {
+21:       System.out.print("3");
+22:       return -3;
+23:    }
+24: }
+The return val is always -3. Because the finally block is executed shortly before the method completes, it interrupts the return statement from inside both the try and catch blocks.
+==============================
+
+31: } finally {
+32:    info.printDetails();
+33:    System.out.print("Exiting");
+34:    return "zoo";
+35: }
+If info is null, then the finally block would be executed, but it would stop on line 32 and throw a NullPointerException.
+Lines 33–34 would not be executed. In this example, you see that while a finally block will always be executed, it may not finish.
+================================
+
+try {
+   System.exit(0);
+} finally {
+   System.out.print("Never going to get here");  // Not printed
+}
+System.exit() tells Java, “Stop. End the program right now. Do not pass go. Do not collect $200.” When System.exit() is called in the try or catch block, the finally block does not run.
+========================
+
+4:  public void readFile(String file) {
+5:     FileInputStream is = null;
+6:     try {
+7:        is = new FileInputStream("myfile.txt");
+8:        // Read file data
+9:     } catch (IOException e) {
+10:       e.printStackTrace();
+11:    } finally {
+12:       if(is != null) {
+13:          try {
+14:             is.close();
+15:          } catch (IOException e2) {
+16:             e2.printStackTrace();
+17:          }
+18:       }
+19:    }
+20: }
+========================
+To solve this, Java includes the try-with-resources statement to automatically close all resources opened in a try clause. This feature is also known as automatic resource management, because Java automatically takes care of the closing.
+4:  public void readFile(String file) {
+5:     try (FileInputStream is = new FileInputStream("myfile.txt")) {
+6:        // Read file data
+7:     } catch (IOException e) {
+8:        e.printStackTrace();
+9:     }
+10: }
+Functionally, they are both quite similar, but our new version has half as many lines. More importantly, though, by using a try-with-resources statement, we guarantee that as soon as a connection passes out of scope, Java will attempt to close it within the same method.
+===================================
+
+Behind the scenes, the compiler replaces a try-with-resources block with a try and finally block. We refer to this “hidden” finally block as an implicit finally block since it is created and used by the compiler automatically. You can still create a programmer-defined finally block when using a try-with-resources statement; just be aware that the implicit one will be called first.
+======================================
+
+ 4: public void readFile(String file) throws IOException {
+5:    try (FileInputStream is = new FileInputStream("myfile.txt")) {
+6:       // Read file data
+7:    }
+8: }
+Earlier in the chapter, you learned that a try statement must have one or more catch blocks or a finally block. This is still true. The finally clause exists implicitly. You just don’t have to type it.
+
+Note	
+Remember that only a try-with-resources statement is permitted to omit both the catch and finally blocks. A traditional try statement must have either or both. You can easily distinguish between the two by the presence of parentheses, (), after the try keyword.
+================================
+
+try-with-resources statement is still allowed to have catch and/or finally blocks. In fact, if the code within the try block throws a checked exception not declared by the method in which it is defined or handled by another try/catch block, then it will need to be handled by the catch block. Also, the catch and finally blocks are run in addition to the implicit one that closes the resources. For the exam, you need to know that the implicit finally block runs before any programmer-coded ones.
+: Legal vs. illegal configurations with a try-with-resources statement
+ 
+
+                    0 finally blocks     1 finally block   2 or more finally blocks
+
+0 catch blocks          Legal             Legal                  Not legal     
+1 or more catch blocks     Legal          Legal                   Not legal
+==============================
+!! NB !! You can’t just put any random class in a try-with-resources statement. Java requires classes used in a try-with-resources implement the AutoCloseable interface, which includes a void close() method. 
+==================
+
+try (var f = new BufferedInputStream(new FileInputStream("it.txt"))) {
+   // Process file
+}
+=================
+The resources created in the try clause are in scope only within the try block. This is another way to remember that the implicit finally runs before any catch/finally blocks that you code yourself. The implicit close has run already, and the resource is no longer available. Do you see why lines 6 and 8 don’t compile in this example?
+
+
+3: try (Scanner s = new Scanner(System.in)) {
+4:    s.nextLine();
+5: } catch(Exception e) {
+6:    s.nextInt(); // DOES NOT COMPILE
+7: } finally {
+8:    s.nextInt(); // DOES NOT COMPILE
+9: }
+The problem is that Scanner has gone out of scope at the end of the try clause. Lines 6 and 8 do not have access to it. This is actually a nice feature. You can’t accidentally use an object that has been closed. In a traditional try statement, the variable has to be declared before the try statement so that both the try and finally blocks can access it, which has the unpleasant side effect of making the variable in scope for the rest of the method, just inviting you to call it by accident.
+Resources are closed in the reverse order from which they were created.
+=======================
+Inside the try block, a RuntimeException is thrown. This triggers the control flow to exit the try block and look for a corresponding catch block to handle the exception.Before the exception is caught by the catch block, the try-with-resources statement ensures that the close() methods of a1 and a2 are called. This is because resource cleanup (closing resources) is guaranteed before any exception is propagated.
+public class Exceptions {
+    public static void main(String... xyz) {
+        try (MyFileClass a1 = new MyFileClass(1);
+             MyFileClass a2 = new MyFileClass(2)) {
+            throw new RuntimeException();
+        } catch (Exception e) {
+            System.out.println("ex");
+        } finally {
+            System.out.println("finally");
+        }
+    }
+}
+//closing: 2
+// closing: 1
+// ex
+// finally
+Does a try-with-resources statement guarantee a resource will be closed? Although this is beyond the scope of the exam, the short answer is “no.” The try-with-resources statement guarantees only the close() method will be called. If the close() method encounters an exception of its own or the method is implemented poorly, a resource leak can still occur. For the exam, you just need to know try-with-resources is guaranteed to call the close() method on the resource.
+=============
+26: try {
+27:    throw new RuntimeException();
+28: } catch (RuntimeException e) {
+29:    throw new RuntimeException();
+30: } finally {
+31:    throw new Exception();
+32: }
+Line 27 throws an exception, which is caught on line 28. The catch block then throws an exception on line 29. If there were no finally block, the exception from line 29 would be thrown. However, the finally block runs after the catch block. Since the finally block throws an exception of its own on line 31, this one gets thrown. The exception from the catch block gets forgotten about. This is why you often see another try/catch inside a finally block—to make sure it doesn’t mask the exception from the catch block.
+==============================
+30: public String exceptions() {
+31:    StringBuilder result = new StringBuilder();
+32:    String v = null;
+33:    try {
+34:       try {
+35:          result.append("before_");
+36:          v.length();
+37:          result.append("after_");
+38:       } catch (NullPointerException e) {
+39:          result.append("catch_");
+40:          throw new RuntimeException();
+41:       } finally {
+42:          result.append("finally_");
+43:          throw new Exception();
+44:       }
+45:    } catch (Exception e) {
+46:       result.append("done");
+47:    }
+48:    return result.toString();
+49: }
+The correct answer is before_catch_finally_done.
+===============================
+class NoMoreCarrotsException extends Exception {}
+
+public class Bunny {
+   public static void main(String[] args) {
+      eatCarrot(); // DOES NOT COMPILE
+   }
+   private static void eatCarrot() throws NoMoreCarrotsException {
+   }
+}
+The problem is that NoMoreCarrotsException is a checked exception. Checked exceptions must be handled or declared. The code would compile if you changed the main() method to either of these:
+
+
+   public static void main(String[] args)
+         throws NoMoreCarrotsException { // declare exception
+      eatCarrot();
+   }
+ 
+   public static void main(String[] args) {
+      try {
+         eatCarrot();
+      } catch (NoMoreCarrotsException e ) { // handle exception
+         System.out.print("sad rabbit");
+      }
+   }
+=====================
+Java knows that eatCarrot() can’t throw a checked exception—which means there’s no way for the catch block in bad() to be reached. In comparison, good() is free to declare other exceptions.
+public void bad() {
+   try {
+      eatCarrot();
+   } catch (NoMoreCarrotsException e ) { // DOES NOT COMPILE
+      System.out.print("sad rabbit");
+   }
+}
+public void good() throws NoMoreCarrotsException {
+   eatCarrot();
+}
+private void eatCarrot() { }
+===========================
+ !! NB !!
+When you see a checked exception declared inside a catch block on the exam, check and make sure the code in the associated try block is capable of throwing the exception or a subclass of the exception. If not, the code is unreachable and does not compile. Remember that this rule does not extend to unchecked exceptions or exceptions declared in a method signature.
+=========================
+class CanNotHopException extends Exception { }
+class Hopper {
+   public void hop() { }
+}
+class Bunny extends Hopper {
+   public void hop() throws CanNotHopException { } // DOES NOT COMPILE
+}
+Java knows hop() isn’t allowed to throw any checked exceptions because the hop() method in the superclass Hopper doesn’t declare any.
+
+An overridden method in a subclass is allowed to declare fewer exceptions than the superclass or interface. This is legal because callers are already handling them.
+
+
+class Hopper {
+   public void hop() throws CanNotHopException { }
+}
+class Bunny extends Hopper {
+   public void hop()  { }
+}
+An overridden method not declaring one of the exceptions thrown by the parent method is similar to the method declaring it throws an exception that it never actually throws. This is perfectly legal.
+==================
+
+he following code is legal because it has an unchecked exception in the subclass’s version:
+
+
+class Hopper {
+   public void hop() { }
+}
+class Bunny extends Hopper {
+   public void hop() throws IllegalStateException { }
+}
+===========================================
+ public static void main(String[] args) {
+6:     try {
+7:        hop();
+8:     } catch (Exception e) {
+9:        System.out.println(e);
+10:       System.out.println(e.getMessage());
+11:       e.printStackTrace();
+12:    }
+13: }
+14: private static void hop() {
+15:    throw new RuntimeException("cannot hop");
+16: }
+This code results in the following output:
+
+
+java.lang.RuntimeException: cannot hop
+cannot hop
+java.lang.RuntimeException: cannot hop
+   at Handling.hop(Handling.java:15)
+   at Handling.main(Handling.java:7)
+=============================
+
+System.out.println(e);
+10:       System.out.println(e.getMessage());
+11:       e.printStackTrace();
+=============================
+The NumberFormatException in Java is an unchecked exception that occurs when an attempt is made to convert a string into a numeric type (like int, float, double, etc.) but the string does not have a valid format. For example, trying to parse a non-numeric string, such as "abc", into an integer using Integer.parseInt("abc") will throw a NumberFormatException. It is a subclass of IllegalArgumentException and is commonly encountered when dealing with numeric conversions.
+RuntimeException classes you should know for the exam include the following:
+
+ArithmeticException
+
+ArrayIndexOutOfBoundsException
+
+ClassCastException
+
+IllegalArgumentException
+
+NullPointerException
+
+NumberFormatException
+===========================================
+Checked Exception classes you should know for the exam include the following:
+
+IOException
+
+FileNotFoundException
+=========================
+Error classes you should know for the exam include the following:
+
+ExceptionInInitializerError
+
+StackOverflowError
+
+NoClassDefFoundError
+=================================
+For the exam, remember that NumberFormatException is a subclass of IllegalArgumentException, and FileNotFoundException is a subclass of IOException.
+When a method overrides a method in a superclass or interface, it is not allowed to add checked exceptions. It is allowed to declare fewer exceptions or declare a subclass of a declared exception. Methods declare exceptions with the keyword throws.
+==================
+all exceptions are subclasses of Throwable
+=======================
+String str = (String) obj;
+Here, you are attempting to cast the obj (which is actually an Integer object) to a String.
+This is invalid because Integer cannot be cast to String. The Integer class and String class are not related by inheritance, so trying to cast one to the other will result in a ClassCastException.
+
+Object obj = Integer.valueOf(3);  // obj is of type Integer
+String str = (String) obj;        // This line causes ClassCastException
+
+Object obj = Integer.valueOf(3);  // obj is of type Integer
+String str = obj.toString();      // This is the correct way to get a String representation
+
+The ClassCastException occurs because you tried to cast an Integer directly to a String, which is not allowed.
+Instead, use toString() or String.valueOf() to properly convert the Integer to a String.
+========================
+. The FileNotFoundException, which inherits from IOException and Exception, is a checked exception, so it must be handled in a try/catch block or declared by the method.
+ 11: public void tryAgain(String s) {
+  12:    try(FileReader r = null, p = new FileReader("")) {
+  13:       System.out.print("X");
+  14:       throw new IllegalArgumentException();
+  15:    } catch (Exception s) {
+  16:       System.out.print("A");
+  17:       throw new FileNotFoundException();
+  18:    } finally {
+  19:       System.out.print("O");
+  20:    }
+  21: }
+// line 12, 15 and 17 dont compile
+
+===============
+AEC followed by a stack trace // for nullpointerexception
+The stack trace is automatically generated by the Java runtime when an exception is thrown and not caught. You don't need to explicitly call anything to get a stack trace; it's a built-in feature of Java's exception handling mechanism.
+If you catch an exception, you can choose to output the stack trace to the console using e.printStackTrace().
+======================================
+
+  3:  try {
+  4:     System.out.print(a / b);
+  5:  } catch (RuntimeException e) {
+  6:     System.out.print(-1);
+  7:  } catch (ArithmeticException e) {
+  8:     System.out.print(0);
+  9:  } finally {
+  10:    System.out.print("done");
+  11: }
+!! NB !! THE CODE DOESNT COMPILE
+
+======================
+NumberFormatException is a runtime exception in Java that occurs when an attempt is made to convert a string into a numeric type (such as int, float, double, etc.), but the string does not have an appropriate format for that conversion.
+=========================
+Any Java type, including Exception and RuntimeException, can be declared as the return type. However, this will simply return the object rather than throw an exception. For this reason, options A and B are correct. Classes listed in the throws part of a method declaration must extend java.lang.Throwable. This includes Error, Exception, and RuntimeException
+==============
+
+!! NB !! A method that declares an exception isn’t required to throw one,
+Unchecked exceptions can be thrown in any method
+
+  7: public void whatHappensNext() throws IOException {
+  8:    // INSERT CODE HERE
+  9: }
+System.out.println("it's ok");
+
+throw new Exception();
+
+throw new IllegalArgumentException();
+
+throw new java.io.IOException();
+
+throw new RuntimeException();
+
+None of the above
+
+Answer:
+A, C, D, E. A method that declares an exception isn’t required to throw one, making option A correct. Unchecked exceptions can be thrown in any method, making options C and E correct. Option D matches the exception type declared, so it’s also correct. Option B is incorrect because a broader exception is not allowed.
+========================
+
+  1:  public class Help {
+  2:     public void callSuperhero() {
+  3:        try (String raspberry = new String("Olivia")) {
+  4:           System.out.print("Q");
+  5:        } catch (Error e) {
+  6:           System.out.print("X");
+  7:        } finally {
+  8:           System.out.print("M");
+  9:        }
+  10:    }
+  11:    public static void main(String[] args) {
+  12:       new Help().callSuperhero();
+  13:       System.out.print("S");
+  14:    } }
+The class does not compile because String does not implement AutoCloseable, making option G the only correct answer
+=================================================================
+A multi-catch block (catch (ExceptionType1 | ExceptionType2)) can catch any exceptions listed within it, regardless of their relationship (i.e., whether they are subclasses or superclasses of each other).
+Each exception type in the multi-catch must be disjoint (i.e., no two exception types in the same multi-catch block can have a parent-child relationship).
+
+
+The catch block in the transform method can catch any exceptions that might be thrown in the try block, not just those declared in the throws clause of the called methods.
+void rollOut() throws ClassCastException {}
+
+public void transform(String c) {
+    try {
+        rollOut();
+    } catch (IllegalArgumentException | ClassCastException e) {
+        // Handle exceptions
+    }
+}
+Both IllegalArgumentException and ClassCastException are runtime exceptions, so they can be caught together in the multi-catch block.
+=================
+---------------------->>>>>>>>>>>>>>>>>>>
+Which lines can fill in the blank to make the following code compile? (Choose all that apply.)
+
+
+  void rollOut() throws ClassCastException {}
+
+    public void transform(String c) {
+     try {
+        rollOut();
+     } catch (IllegalArgumentException | _______________) {
+     }
+  }
+IOException a
+
+Error b
+
+NullPointerException c
+
+RuntimeException d
+
+NumberFormatException e
+
+ClassCastException f
+
+None of the above. The code contains a compiler error regardless of what is inserted into the blank.
+
+Answer:
+B, F. The try block is not capable of throwing an IOException. For this reason, declaring it in the catch block is considered unreachable code, making option A incorrect. Options B and F are correct, as both are unchecked exceptions that do not extend or inherit from IllegalArgumentException. Remember, it is not a good idea to catch Error in practice, although because it is possible, it may come up on the exam. Option C is incorrect, but not because of the data type. The variable c is declared already in the method declaration, so it cannot be used again as a local variable in the catch block. If the variable name was changed, option C would be correct. Option D is incorrect because the IllegalArgumentException inherits from RuntimeException, making the first declaration unnecessary. Similarly, option E is incorrect because NumberFormatException inherits from IllegalArgumentException, making the second declaration unnecessary. Since options B and F are correct, option G is incorrect.
+=======================================================================================
+
+
+Rila Klooster, gelegen in het prachtige Rila-gebergte, bevindt zich op ongeveer 120 kilometer ten zuiden van Sofia, de hoofdstad van Bulgarije. Het klooster ligt op een hoogte van 1.147 meter, omringd door bossen en bergen, wat het een serene en vredige plek maakt.
+
+Het klooster werd in de 10e eeuw gesticht door de heilige Ivan Rilski, een kluizenaar die zich terugtrok in de bergen om te bidden en te mediteren. Ivan Rilski werd al snel een spiritueel leider, en zijn volgelingen bouwden het klooster om hem heen. Zijn relikwieën worden bewaard in het klooster en trekken jaarlijks duizenden pelgrims.
+
+In de eeuwen daarna speelde het Rila Klooster een cruciale rol in het behoud van de Bulgaarse cultuur, vooral tijdens de Ottomaanse overheersing. Het klooster was niet alleen een religieus centrum, maar ook een plek waar kinderen werden onderwezen. Hier leerden ze lezen, schrijven en de basis van het orthodoxe geloof. Het klooster was daarmee een belangrijk centrum van onderwijs, waar monniken kinderen onderwezen in de Bulgaarse taal en geschiedenis, om zo de nationale identiteit te behouden.
+
+Vandaag de dag is het Rila Klooster niet alleen een symbool van het Bulgaarse geloof, maar ook een monument van de nationale trots en het cultureel erfgoed.Het Rila Klooster staat sinds 1983 op de UNESCO Werelderfgoedlijst en is een van de grootste en best bewaarde kloosters in de Balkan.
+=============================
+An overridden method is allowed to throw no exceptions at all even if the original method does. t is also allowed to throw new unchecked exceptions,
+==================
+Which of the following pairs fill in the blanks to make this code compile? (Choose all that apply.)
+
+
+  6: public void ohNo(IOException ie) ________ Exception {
+  7:   ______________ FileNotFoundException();
+  8:   ______________  ie;
+  9: }
+
+ The code does not compile, regardless of what is inserted into the blanks. You cannot add a statement after a line that throws an exception. For this reason, line 8 is unreachable after the exception is thrown on line 7, making option G correct.
+=======================================
+
+   public static void main(String[] args) {
+        System.out.print("a");
+        try {
+            System.out.print("b");
+            throw new IllegalArgumentException();
+        } catch (IllegalArgumentException e) {
+            System.out.print("c");
+            throw new RuntimeException("1");
+        } catch (RuntimeException e) {
+            System.out.print("d");
+            throw new RuntimeException("2");
+        } finally {
+            System.out.print("e");
+            throw new RuntimeException("3");
+        }
+    }
+output: 
+abceException in thread "main" java.lang.RuntimeException: 3
+================================================
+
+  13: try {
+  14:    return a / b;
+  15: } catch (ClassCastException e) {
+  16:    return 10;
+  17: } catch (RuntimeException e) {
+  18:    return 20;
+  19: } finally {
+  20:    return 30;
+  21: }
+// OUTPUT IS 30 !!!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
