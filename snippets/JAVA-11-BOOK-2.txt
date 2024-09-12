@@ -479,6 +479,587 @@ show-module-resolution
 
 summary
 ============================
+CHAPTER 12: JAVA FUNDAMENTALS
+=======================
+marking a variable final means the value cannot be changed after it is assigned. 
+private void printZooInfo(boolean isWeekend) {
+   final int giraffe = 5;
+   final long lemur;
+   if(isWeekend) lemur = 5;
+   else lemur = 10;
+   System.out.println(giraffe+" "+lemur);
+}
+As shown with the lemur variable, we don't need to assign a value when a final variable is declared. The rule is only that it must be assigned a value before it can be used.
+=================================
+The compiler does not allow the use of local variables that may not have been assigned a value, whether they are marked final or not.
+===================
+Just because a variable reference is marked final does not mean the object associated with it cannot be modified. Consider the following code snippet:
+
+final StringBuilder cobra = new StringBuilder();
+cobra.append("Hssssss");
+cobra.append("Hssssss!!!");
+In the cobra example, the object reference is constant, but that doesn't mean the data in the class is constant.
+============================
+Instance and static class variables can also be marked final. If an instance variable is marked final, then it must be assigned a value when it is declared or when the object is instantiated. Like a local final variable, it cannot be assigned a value more than once, though
+-----------------------
+public class PolarBear {
+   final int age = 10;
+   final int fishEaten;
+   final String name;
+
+   { fishEaten = 10; }
+
+   public PolarBear() {
+      name = "Robert";
+   }
+   public PolarBear(int height) {
+      this();
+   }
+}
+===========================
+Methods marked final cannot be overridden by a subclass. Marking a method or class final means it cannot be overridden or extended, respectively.
+Enum values are considered constants and are commonly written using snake case, often stylized as snake_case. This style uses an underscore ( _) to separate words with constant values commonly written in all uppercase. For example, an enum declaring a list of ice cream flavors might include values like VANILLA, ROCKY_ROAD, MINT_CHOCOLATE_CHIP, and so on.
+Behind the scenes, an enum is a type of class that mainly contains static members. It also includes some helper methods like name().
+Season s = Season.SUMMER;
+System.out.println(Season.SUMMER); // SUMMER
+System.out.println(s == Season.SUMMER); // true
+--------------------------------
+An enum provides a values() method to get an array of all of the values. 
+for(Season season: Season.values()) {
+   System.out.println(season.name() + " " + season.ordinal());
+}
+The output shows that each enum value has a corresponding int value, and the values are listed in the order in which they are declared.
+--------------------------------
+You can't compare an int and enum value directly anyway since an enum is a type, like a Java class, and not a primitive int.
+if ( Season.SUMMER == 2) {} // DOES NOT COMPILE
+-----------------------
+Season s = Season.valueOf("SUMMER"); // SUMMER
+Season t = Season.valueOf("summer"); // Throws an exception at runtime
+---------------------------------
+Season summer = Season.SUMMER;
+switch (summer) {
+   case WINTER:
+      System.out.println("Get out the sled!");
+      break;
+   case SUMMER:
+      System.out.println("Time for the pool!");
+      break;
+   default:
+      System.out.println("Is it summer yet?");
+}
+---------------------
+switch (summer) {
+   case Season.FALL:  // DOES NOT COMPILE
+      System.out.println("Rake some leaves!");
+      break;
+   case 0:            // DOES NOT COMPILE
+      System.out.println("Get out the sled!");
+      break;
+}
+------------------
+1: public enum Season {
+2:    WINTER("Low"), SPRING("Medium"), SUMMER("High"), FALL("Medium");
+3:    private final String expectedVisitors;
+4:    private Season(String expectedVisitors) {
+5:       this.expectedVisitors = expectedVisitors;
+6:    }
+7:    public void printExpectedVisitors() {
+8:       System.out.println(expectedVisitors);
+9:    } }
+
+public static void main(String[] args) {
+        System.out.println("winter: " + Season.WINTER);
+        System.out.println("vals: " + Arrays.toString(Season.values()));
+        Season.SUMMER.printExpectedVisitors();
+    }
+    output:
+    winter: WINTER
+    vals: [WINTER, SPRING, SUMMER, FALL]
+    High
+    ----------------------
+    for(Season season: Season.values()) {
+       System.out.println(season.name() + " " + season.ordinal());
+    }
+    The output shows that each enum value has a corresponding int value, and the values are listed in the order in which they are declared.
+    WINTER 0
+    SPRING 1
+    SUMMER 2
+    FALL 3
+    You can't compare an int and enum value directly anyway since an enum is a type, like a Java class, and not a primitive int.
+     if ( Season.SUMMER == 2) {} // DOES NOT COMPILE
+
+Season s = Season.valueOf("SUMMER"); // SUMMER
+Season t = Season.valueOf("summer"); // Throws an exception at runtime
+-------------------------
+Season summer = Season.SUMMER;
+switch (summer) {
+   case WINTER:
+      System.out.println("Get out the sled!");
+      break;
+   case SUMMER:
+      System.out.println("Time for the pool!");
+      break;
+   default:
+      System.out.println("Is it summer yet?");
+}
+
+switch (summer) {
+   case Season.FALL:  // DOES NOT COMPILE
+      System.out.println("Rake some leaves!");
+      break;
+   case 0:            // DOES NOT COMPILE
+      System.out.println("Get out the sled!");
+      break;
+}
+===========================================
+!! NB !!
+All enum constructors are implicitly private, with the modifier being optional. This is reasonable since you can't extend an enum and the constructors can be called only within the enum itself. An enum constructor will not compile if it contains a public or protected modifier.
+=====================================================
+
+How do we call an enum method? It's easy: Season.SUMMER.printExpectedVisitors();
+------------------------
+public enum OnlyOne {
+   ONCE(true);
+   private OnlyOne(boolean b) {
+      System.out.print("constructing,");
+   }
+}
+
+public class PrintTheOne {
+   public static void main(String[] args) {
+      System.out.print("begin,");
+      OnlyOne firstCall = OnlyOne.ONCE;  // prints constructing,
+      OnlyOne secondCall = OnlyOne.ONCE; // doesn't print anything
+      System.out.print("end");
+   }
+}
+----------------------------
+public enum Season {
+   WINTER {
+      public String getHours() { return "10am-3pm"; }
+   },
+   SPRING {
+      public String getHours() { return "9am-5pm"; }
+   },
+   SUMMER {
+      public String getHours() { return "9am-7pm"; }
+   },
+   FALL {
+      public String getHours() { return "9am-5pm"; }
+   };
+   public abstract String getHours();
+}
+
+If we don't want each and every enum value to have a method, we can create a default implementation and override it only for the special cases.
+
+
+public enum Season {
+   WINTER {
+      public String getHours() { return "10am-3pm"; }
+   },
+   SUMMER {
+      public String getHours() { return "9am-7pm"; }
+   },
+   SPRING, FALL;
+   public String getHours() { return "9am-5pm"; }
+}
+===================================
+NESTED CLASSES
+===================================================
+A nested class is a class that is defined within another class. A nested class can come in one of four flavors.
+Inner class: A non‐ static type defined at the member level of a class
+Static nested class: A static type defined at the member level of a class
+Local class: A class defined within a method body
+Anonymous class: A special case of a local class that does not have a name
+---------------
+ interfaces and enums can be declared as both inner classes and static nested classes, but not as local or anonymous classes.
+------------------------------------------------
+============ NB =====================
+INNER NON STATIC CLASS: Can be declared public, protected, package‐private (default), or private
+Can extend any class and implement interfaces
+Can be marked abstract or final
+nb !!!! Cannot declare static fields or methods, except for static final fields
+Can access members of the outer class including private members
+=========================
+20:    public static void main(String[] args) {
+21:       Outer outer = new Outer();
+22:       Inner inner = outer.new Inner(); // create the inner class
+23:       inner.go();
+24:    }
+===================================
+1:  public class A {
+2:     private int x = 10;
+3:     class B {
+4:        private int x = 20;
+5:        class C {
+6:           private int x = 30;
+7:           public void allTheX() {
+8:              System.out.println(x);        // 30
+9:              System.out.println(this.x);   // 30
+10:             System.out.println(B.this.x); // 20
+11:             System.out.println(A.this.x); // 10
+12:    } } }
+13:    public static void main(String[] args) {
+14:       A a = new A();
+15:       A.B b = a.new B();
+16:       A.B.C c = b.new C();
+17:       c.allTheX();
+18: }}
+===================================
+    public class Fox {
+       private class Den {}
+       public void goHome() {
+          new Den();
+       }
+       public static void visitFriend() {
+          new Den();  // DOES NOT COMPILE; need to mention new Fox
+       }
+    }
+
+    public class Squirrel {
+       public void visitFox() {
+          new Den();  // DOES NOT COMPILE: private and would've needed to add new Fox()
+       }
+    }
+===============================
+A static nested class is a static type defined at the member level. Unlike an inner class, a static nested class can be instantiated without an instance of the enclosing class.The trade‐off, though, is it can't access instance variables or methods in the outer class directly. It can be done but requires an explicit reference to an outer class variable. The enclosing class can refer to the fields and methods of the static nested class.
+1: public class Enclosing {
+2:    static class Nested {
+3:       private int price = 6;
+4:    }
+5:    public static void main(String[] args) {
+6:       Nested nested = new Nested();
+7:       System.out.println(nested.price);
+8: } }
+Line 6 instantiates the nested class. Since the class is static, you do not need an instance of Enclosing to use it. You are allowed to access private instance variables, which is shown on line 7.
+--------------------------------
+ // Toucan.java
+    package bird;
+    public class Toucan {
+       public static class Beak {}
+    }
+
+    // BirdWatcher.java
+    package watcher;
+    import bird.Toucan.Beak; // regular import ok
+    import static bird.Toucan.Beak; // this works too
+    public class BirdWatcher {
+       Beak beak;
+    }
+-------------------------------
+A local class is a nested class defined within a method. Like local variables, a local class declaration does not exist until the method is invoked, and it goes out of scope when the method returns. 
+Local classes have the following properties:
+They do not have an access modifier.
+They cannot be declared static and cannot declare static fields or methods, except for static final fields.
+They have access to all fields and methods of the enclosing class (when defined in an instance method).
+They can access local variables if the variables are final or effectively final.
+==================================================
+Anonymous classes are required to extend an existing class or implement an existing interface. They are useful when you have a short implementation that will not be used anywhere else. Here's an example:
+1:  public class ZooGiftShop {
+2:     abstract class SaleTodayOnly {
+3:        abstract int dollarsOff();
+4:     }
+5:     public int admission(int basePrice) {
+6:        SaleTodayOnly sale = new SaleTodayOnly() {
+7:           int dollarsOff() { return 3; }
+8:        };  // !!! NB !!!	 Don't forget the semicolon!
+9:        return basePrice - sale.dollarsOff();
+10: } }
+!!  Local variable declarations are required to end with semicolons, just like other Java statements—even if they are long and happen to contain an anonymous class.
+==========================================
+1:  public class ZooGiftShop {
+2:     interface SaleTodayOnly {
+3:        int dollarsOff();
+4:     }
+5:     public int admission(int basePrice) {
+6:        SaleTodayOnly sale = new SaleTodayOnly() {
+7:           public int dollarsOff() { return 3; }
+8:        };
+9:        return basePrice - sale.dollarsOff();
+10: } }
+The most interesting thing here is how little has changed. Lines 2 through 4 declare an interface instead of an abstract class. Line 7 is public instead of using default access since interfaces require public methods.
+--------------------------------
+But what if we want to implement both an interface and extend a class? You can't with an anonymous class, unless the class to extend is java.lang.Object.  Remember that an anonymous class is just an unnamed local class. You can write a local class and give it a name if you have this problem. Then you can extend a class and implement as many interfaces as you like.
+-----------------
+Permitted Modifiers	Inner class	Static nested class	Local class	Anonymous class
+Access modifiers	All	           All	                    None	None
+Abstract	         Yes	            Yes	                     Yes	No
+Final	                 Yes	             Yes	             Yes	No
+=================================
+A default method is assumed to be public.
+A default method cannot be marked abstract, final, or static.
+If a class inherits two or more default methods with the same method signature, then the class must override the method.
+=======================================================
+public interface Walk {
+   public default int getSpeed() { return 5; }
+}
+
+public interface Run {
+   public default int getSpeed() { return 10; }
+}
+
+public class Cat implements Walk, Run {  // DOES NOT COMPILE
+   public static void main(String[] args) {
+      System.out.println(new Cat().getSpeed());
+   }
+}
+BUT:
+public class Cat implements Walk, Run {
+   public int getSpeed() { return 1; }
+ 
+   public static void main(String[] args) {
+      System.out.println(new Cat().getSpeed());
+   }
+}
+======================================================
+Calling a Hidden default Method
+public class Cat implements Walk, Run {
+   public int getSpeed() { return 1; }
+
+   public int getWalkSpeed() {
+      return ___________; // TODO: Call Walk's version of getSpeed()
+   }
+
+   public static void main(String[] args) {
+      System.out.println(new Cat().getWalkSpeed());
+   }
+}
+This is an area where a default method exhibits properties of both a static and instance method. Ready for the answer? Well, first off, you definitely can't call Walk.getSpeed(). A default method is treated as part of the instance since they can be overridden, so they cannot be called like a static method.
+public class Cat implements Walk, Run {
+   public int getSpeed() {
+      return 1;
+   }
+
+   public int getWalkSpeed() {
+      return Walk.super.getSpeed();    !!! NB !!!
+   }
+
+   public static void main(String[] args) {
+      System.out.println(new Cat().getWalkSpeed());
+   }
+}
+================================
+Static Interface Method Definition Rules
+A static method must be marked with the static keyword and include a method body.
+
+A static method without an access modifier is assumed to be public.
+
+A static method cannot be marked abstract or final.
+
+A static method is not inherited and cannot be accessed in a class implementing the interface without a reference to the interface name.
+===============================
+!!! NB !!! interfaces may now include private interface methods.A private interface method may be called only by default and private (non‐ static) methods within the interface definition.
+=============================
+public interface Swim {
+   private static void breathe(String type) {
+      System.out.println("Inhale");
+      System.out.println("Performing stroke: " + type);
+      System.out.println("Exhale");
+   }
+   static void butterfly()        { breathe("butterfly");  }
+   public static void freestyle() { breathe("freestyle");  }
+   default void backstroke()      { breathe("backstroke"); }
+   private void breaststroke()    { breathe("breaststroke"); }
+}
+=====================
+A private static interface method may be called only by other methods within the interface definition.
+!!! Both private and private static methods can be called from default and private methods.. On the other hand, a private method cannot be called from a private static method.
+. A key distinction, though, is that interfaces do not implement constructors and are not part of the class hierarchy. While a class can implement multiple interfaces, it can only directly extend a single class.
+=============================
+Declaring a Functional Interface with Object Methods
+all classes inherit certain methods from Object. For the exam, you should be familiar with the following Object method declarations:
+String toString()
+boolean equals(Object)
+int hashCode()
+--------------------------------------------------------
+ If a functional interface includes an abstract method with the same signature as a public method found in Object, then those methods do not count toward the single abstract method test. The motivation behind this rule is that any class that implements the interface will inherit from Object, as all classes do, and therefore always implement these methods.
+Note	
+Since Java assumes all classes extend from Object, you also cannot declare an interface method that is incompatible with Object. For example, declaring an abstract method int toString() in an interface would not compile since Object's version of the method returns a String.
+
+Let's take a look at an example. Is the Soar class a functional interface?
+
+
+public interface Soar {
+   abstract String toString();
+}
+It is not. Since toString() is a public method implemented in Object, it does not count toward the single abstract method test.
+
+On the other hand, the following implementation of Dive is a functional interface:
+
+
+public interface Dive {
+   String toString();
+   public boolean equals(Object o);
+   public abstract int hashCode();
+   public void dive();
+}
+=============================
+public interface Hibernate {
+   String toString();
+   public boolean equals(Hibernate o);
+   public abstract int hashCode();
+   public void rest();
+}
+Despite looking a lot like our Dive interface, the Hibernate interface uses equals(Hibernate) instead of equals(Object). Because this does not match the method signature of the equals(Object) method defined in the Object class, this interface is counted as containing two abstract methods: equals(Hibernate) and rest().
+===========================
+hashCode(): Any time you override equals(Object), you must override hashCode() to be consistent. This means that for any two objects, if a.equals(b) is true, then a.hashCode()==b.hashCode() must also be true. If they are not consistent, then this could lead to invalid data and side effects in hash‐based collections such as HashMap and HashSet.===================
+=========================================================
+any functional interface can be implemented as a lambda expression.
+public interface Predicate<T> {
+   boolean test(T t);
+}
+=================================
+public class Animal {
+   private String species;
+   private boolean canHop;
+   private boolean canSwim;
+   public Animal(String speciesName, boolean hopper, boolean swimmer) {
+      species = speciesName;
+      canHop = hopper;
+      canSwim = swimmer;
+   }
+   public boolean canHop()  { return canHop; }
+   public boolean canSwim() { return canSwim; }
+   public String toString() { return species; }
+}
+===================
+Lambda expressions rely on the notion of deferred execution. Deferred execution means that code is specified now but runs later. In this case, later is when the print() method calls it. Even though the execution is deferred, the compiler will still validate that the code syntax is correct.
+---
+all correct:
+
+() -> new Duck()
+d -> {return d.quack();}
+(Duck d) -> d.quack()
+(Animal a, Duck d) -> d.quack()
+-------------------
+ we needed a lambda that returns a boolean value. Do you see what's wrong with each of these?
+
+
+3: a, b -> a.startsWith("test")         // DOES NOT COMPILE
+4: Duck d -> d.canQuack();              // DOES NOT COMPILE
+5: a -> { a.startsWith("test"); }       // DOES NOT COMPILE
+6: a -> { return a.startsWith("test") } // DOES NOT COMPILE
+7: (Swan s, t) -> s.compareTo(t) != 0   // DOES NOT COMPILE
+Lines 3 and 4 require parentheses around each parameter list. Remember that the parentheses are optional only when there is one parameter and it doesn't have a type declared. Line 5 is missing the return keyword, which is required since we said the lambda must return a boolean. Line 6 is missing the semicolon inside of the braces, {}. Finally, line 7 is missing the parameter type for t. If the parameter type is specified for one of the parameters, then it must be specified for all of them.
+------------------------
+
+interchangeable:
+Predicate<String> p = x -> true;
+Predicate<String> p = (var x) -> true;
+Predicate<String> p = (String x) -> true;
+---------------------------------------
+
+public void whatAmI() {
+   test((var x) -> x>2, 123);
+}
+
+public void test(Predicate<Integer> c, int num) {
+   c.test(num);
+}
+===================================
+!!! Restrictions on Using var in the Parameter List
+While you can use var inside a lambda parameter list, there is a rule you need to be aware of. If var is used for one of the types in the parameter list, then it must be used for all parameters in the list. 
+====================
+11: public void variables(int a) {
+12:    int b = 1;
+13:    Predicate<Integer> p1 = a -> {
+14:       int b = 0;
+15:       int c = 0;
+16:       return b == c;}
+17: }
+3 synthax errors: l.13: cant redeclare a, l.14: cant redeclare b; l.16: missing ; at the end of p1
+=======================================
+Lambda bodies are allowed to use static variables, instance variables, and local variables if they are final or effectively final. 
+4:  public class Crow {
+5:     private String color;
+6:     public void caw(String name) {
+7:        String volume = "loudly";
+8:        color = "allowed";
+9:        name = "not allowed"; // doesnt compile: not effectively final
+10:       volume = "not allowed"; // same
+11:       Predicate<String> p =
+12:          s -> (name+volume+color).length()==9; // DOES NOT COMPILE
+13:    }
+14: }
+In this example, the values of name and volume are assigned new values on lines 9 and 10. For this reason, the lambda expression declared on lines 11 and 12 does not compile since it references local variables that are not final or effectively final. If lines 9 and 10 were removed, then the class would compile.
+================================
+Instance and static variables can be marked final.
+
+ When an enum contains only a list of values, the semicolon (;) after the list is optional. When an enum contains any other members, such as a constructor or variable, then it is required:
+  public class FlavorsEnum {
+           enum Flavors {
+              VANILLA, CHOCOLATE, STRAWBERRY // in this case u need ;
+              static final Flavors DEFAULT = STRAWBERRY;
+           }
+           public static void main(String[] args) {
+              for(final var e : Flavors.values())
+                 System.out.print(e.ordinal()+" ");
+           }
+        }
+If the missing semicolon was added, then the program would print 0 1 2 at runtime.
+
+The purpose of this line is to provide a default flavor for the Flavors enum. If at any point in the program you need a default or fallback value, you can reference Flavors.DEFAULT, which will always return the STRAWBERRY flavor.
+==============================
+
+  1:  public class Movie {
+        2:     private int butter = 5;
+        3:     private Movie() {}
+        4:     protected class Popcorn {
+        5:        private Popcorn() {}
+        6:        public static int butter = 10; // !!! Inner classes are only allowed to contain static variables that are marked final. 
+        7:        public void startMovie() {
+        8:           System.out.println(butter);
+        9:        }
+        10:    }
+        11:    public static void main(String[] args) {
+        12:       var movie = new Movie();
+        13:       Movie.Popcorn in = new Movie().new Popcorn();
+        14:       in.startMovie();
+        15:    } }
+If the final modifier was added on line 6, then the code would print 10 at runtime. Note that private constructors can be used by any methods within the same class.
+==============================
+
+A default interface method can be declared private.
+
+A default interface method can be declared public.
+
+A default interface method can be declared static.
+
+A private interface method can be declared abstract.
+
+A private interface method can be declared protected.
+
+A private interface method can be declared static.
+
+Answer:
+B, F. A default interface method is always public, whether you include the identifier or not, making option B correct and option A incorrect. Interfaces cannot contain default static methods, making option C incorrect. Option D is incorrect, as private interface methods are not inherited and cannot be marked abstract. Option E is incorrect, as a method can't be marked both protected and private. Finally, interfaces can include both private and private static methods, making option F correct.
+=============================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
