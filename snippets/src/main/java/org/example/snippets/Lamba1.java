@@ -11,6 +11,5 @@ public class Lamba1 {
     }
     public static void main(String[] args) {
         execute((a, b) -> a * b);
-
     }
 }
