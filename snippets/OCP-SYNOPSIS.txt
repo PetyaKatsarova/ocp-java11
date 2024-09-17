@@ -1,0 +1,368 @@
+ if you declare a field in an interface like int a = 10, the compiler automatically treats it as public static final.
+ =============================
+ INTERFACE: non-static methods must be PRIVATE OR DEFAULT
+ ==========================================
+ VAR AND FINAL cant be used together
+ ===============================================
+ INNER CLASSES can have only STATIC FINAL, cant have alone static
+ ==========================================
+ INTERFACE cant have DEFAULT STATIC methods but can have:
+ PRIVATE AND PRIVATE STATIC methods
+ ================================
+ (final Camel c) -> {} is a valid func interface for Consumer<Camel>
+ -------------------------------
+ The value of an effectively final variable is not modified after it is set.
+ A lambda expression can reference effectively final variables.
+ A lambda expression can reference final variables.
+ If the final modifier is added, the code still compiles.
+ Instance variables can NOT be effectively final.
+  Static variables can NOT be effectively final.
+ --------------------------------------------
+ advantages of using default interface methods:
+ Backward compatibility
+ Convenience in classes implementing the interface
+ --------------------------------------------
+ Enum constructors are implicitly private !!!!!!!!!!!!! NEVER PUBLIC !!!!
+ --------------------------------------------
+
+
+
+ ==================================
+ CHAPTER 13. ANNOTATIONS
+ ==================================
+ When declaring an annotation, any element without a default value is considered required.
+ -------------------------------------
+  an annotation element cannot be declared with just any type. It must be a primitive type, a String, a Class, an enum, another annotation, or an array of any of these types.
+  -------------------------------
+  Like abstract interface methods, annotation elements are implicitly abstract and public, whether you declare them that way or not.
+  --------------------------------------------
+   just like interface variables, annotation variables are implicitly public, static, and final. These constant variables are not considered elements, though. For example, marker annotations can contain constants.
+   -----------------------------------------------
+     public class Capybara {
+          @Rhythm(value={"Swing"}) String favorite;
+          @Rhythm(value="R&B") String secondFavorite;
+          @Rhythm({"Classical"}) String mostDisliked;
+          @Rhythm("Country") String lastDisliked;
+       }
+       -----------------------------
+       The @Override is a marker annotation that is used to indicate a method is overriding an inherited method, whether it be inherited from an interface or parent class. From Chapter 8, “Class Design,” you should know that the overriding method must have the same signature, the same or broader access modifier, and a covariant return type, and not declare any new or broader checked exceptions.
+       ---------------------------
+        @Deprecated and @deprecated, the former(first) being a Java annotation and the latter(last) being a Javadoc annotation. Whenever you deprecate a method, you should add a Javadoc annotation to instruct users on how they should update their code.
+        -------------------------------------------
+        Ignoring Warnings with @SuppressWarnings
+        ------------------------------
+        The @SafeVargs marker annotation indicates that a method does not perform any potential unsafe operations on its varargs parameter. It can be applied only to constructors or methods that cannot be overridden (aka methods marked private, static, or final).
+        ------------------------------
+        A varargs parameter is used to indicate the method may be passed zero or more values of the same type, by providing an ellipsis ( …). In addition, a method can have at most one varargs parameter, and it must be listed last.
+
+        @SafeVargs, the annotation is used to indicate to other developers that your method does not perform any unsafe operations. It basically tells other developers, “Don't worry about the varargs parameter; I promise this method won't do anything bad with it!” It also suppresses unchecked compiler warnings for the varargs parameter.
+        -----------------------------------------------------------
+        You should also know the annotation can be applied only to methods that contain a varargs parameter and are not able to be overridden. For example, the following do not compile:
+
+        @SafeVarargs
+        public static void eat(int meal) {}         // DOES NOT COMPILE
+
+        @SafeVarargs
+        protected void drink(String... cup) {}      // DOES NOT COMPILE
+
+        @SafeVarargs void chew(boolean... food) {}  // DOES NOT COMPILE
+        The eat() method is missing a varargs parameter, while the drink() and chew() methods are not marked static, final, or private.
+        --------------------------------------------------
+        @Override: Marker annotation, no value, no optional members.
+        @FunctionalInterface: Marker annotation, no value, no optional members.
+        @Deprecated: Not a marker annotation, no value, optional members: String since(), boolean forRemoval().
+        @SuppressWarnings: Not a marker annotation, String[] value, no optional members.
+        @SafeVarargs: Marker annotation, no value, no optional members.
+        ---------------------------------------------
+        @Override: Applies to methods, compiler error when the method signature does not match an inherited method.
+        @FunctionalInterface: Applies to interfaces, compiler error when the interface does not contain a single abstract method.
+        @Deprecated: Applies to most Java declarations, no compiler error.
+        @SuppressWarnings: Applies to most Java declarations, no compiler error.
+        @SafeVarargs: Applies to methods, constructors, compiler error when the method/constructor does not contain a varargs parameter or is not marked private, static, or final.
+        ------------------------------------------------------
+        An annotation is declared with the @interface type. It may include elements and public static final constant variables. If it does not include any elements, then it is a marker annotation. Optional elements are specified with a default keyword and value, while required elements are those specified without one.
+        ----------------------------------------------------------------
+         Annotations must include a value for each required element and can be applied to types, methods, constructors, and variables. They can also be used in cast operations, lambda expressions, or inside type declarations.
+         ----------------------------
+         If one of the annotation elements is a primitive array and the array is passed a single value, then the annotation value may be written without the array braces ({}).
+         ------------------------------------------------------
+         ava includes a number of annotations that apply to annotation declarations. The @Target annotation allows you to specify where an annotation can and cannot be used. The @Retention annotation allows you to specify at what level the annotation metadata is kept or discarded. @Documented is a marker annotation that allows you to specify whether annotation information is included in the generated documentation. @Inherited is another marker annotation that determines whether annotations are inherited from super types. The @Repeatable annotation allows you to list an annotation more than once on a single declaration. It requires a second containing type annotation to be declared.
+         ------------------------------------------------
+         Marking a type @Deprecated means that the compiler will generate a depreciation warning when it is referenced. Adding @SuppressWarnings with a set of values to a declaration causes the compiler to ignore the set of specified warnings. Adding @SafeVarargs on a constructor or private, static, or final method instructs other developers that no unsafe operations will be performed on its varargs parameter. While all of these annotations are optional, they are quite useful and improve the quality of code when used.
+         -----------------------------------------------
+            1: import java.lang.annotation.Documented;
+                 2: enum Color {GREY, BROWN}
+                 3: @Documented public @interface Dirt {
+                 4:    boolean wet();
+                 5:    String type() = "unknown";
+                 6:    public Color color();
+                 7:    private static final int slippery = 5;
+                 8: }
+ Line 5 does not compile because = is used to assign a default value, rather than the default modifier. Line 7 does not compile because annotation and interface constants are implicitly public and cannot be marked private.
+ ------------------------------
+ Which built‐in annotations can be applied to an annotation declaration? (Choose all that apply.)
+
+ @Override
+
+ @Deprecated
+
+ @Document
+
+ @Target
+
+ @Repeatable
+
+ @Functional
+
+ Answer:
+ B, D, E. The annotations @Target and @Repeatable are specifically designed to be applied to annotations, making options D and E correct. Option B is also correct, as @Deprecated can be applied to almost any declaration. Option A is incorrect because @Override can be applied only to methods. Options C and F are incorrect because they are not the names of built-in annotations.
+ ------------------------------------
+ Which of the following lines of code do not compile? (Choose all that apply.)
+
+         1: import java.lang.annotation.*;
+         2: class Food {}
+         3: @Inherited public @interface Unexpected {
+         4:    public String rsvp() default null;
+         5:    Food food();
+         6:    public String[] dessert();
+         7:    final int numberOfGuests = 5;
+         8:    long startTime() default 0L;
+         9: }
+ Line 3
+
+ Line 4
+
+ Line 5
+
+ Line 6
+
+ Line 7
+
+ Line 8
+
+ All of the lines compile.
+
+ Answer:
+ line 4 and 5: Line 4 does not compile because the default value of an element must be a non-null constant expression. Line 5 also does not compile because an element type must be one of the predefined immutable types: a primitive, String, Class, enum, another annotation, or an array of these types. The rest of the lines do not contain any compilation errors.
+ --------------------------------------------------
+  To use an annotation with a value but not element name, the element must be declared with the name value(), not values(), making option A incorrect. The value() annotation may be required or optional, making option B incorrect. The annotation declaration may contain other elements, provided none is required, making option C incorrect. Option D is correct, as the annotation must not include any other values. Finally, option E is incorrect, as this is not a property of using a value() shorthand.
+
+  If an annotation has multiple elements, only the value element can be unnamed. All other elements must have default values or be optional for the annotation to work without specifying all names.
+  An optional annotation element has a default value, meaning it doesn't need to be provided when using the annotation.
+  ----------------------
+  The @SafeVarargs annotation can be applied to a constructor or private, static, or final method that includes a varargs parameter. the annotation can be applied only to methods that cannot be overridden and abstract methods can always be overridden. Finally, option E is incorrect, as it is applied to the declaration, not the parameters.
+  -----------------------------------
+  !!!! Annotations cannot have constructors !!!!
+  ------------------------------------------
+
+   1: import java.lang.annotation.*;
+          2: enum UnitOfTemp { C, F }
+          3: @interface Snow { boolean value(); }
+          4: @Target(ElementType.METHOD) public @interface Cold {
+          5:    private Cold() {}
+          6:    int temperature;
+          7:    UnitOfTemp unit default UnitOfTemp.C;
+          8:    Snow snow() default @Snow(true);
+          9: }
+
+  Line 5: Annotations cannot have constructors. Remove this line.
+  Line 6: Annotation elements should not be fields. Replace it with a method-like declaration (int temperature();).
+  Line 7: Default values must be assigned with =, not default. Use UnitOfTemp unit() default UnitOfTemp.C;.
+  -------------------------
+  An optional annotation element is one that is declared with a default value that may be optionally replaced when used in an annotation.
+  ---------------------------------------------------------
+  The @Retention annotation determines whether annotations are discarded when the code is compiled, at runtime, or not at all. The presence, or absence, of the @Documented annotation determines whether annotations are discarded within generated Javadoc.
+  -----------------------------------
+  A marker annotation is an annotation with no elements. It may or may not have constant variables, making option B correct. Option E is incorrect as no annotation can be extended.
+  ---------------------------------------------
+  @SuppressWarnings requires a value. @SuppressWarnings("unchecked")
+
+  delete after learned:
+  Which options, when inserted into the blank in the code, allow the code to compile without any warnings? (Choose all that apply.)
+
+          import java.util.*;
+          import java.lang.annotation.*;
+          public class Donkey {
+             _______________________
+             public String kick(List... t) {
+                t[0] = new ArrayList();
+                t[0].add(1);
+                return (String)t[0].get(0);
+             }
+          }
+  @SafeVarargs
+
+  @SafeVarargs("unchecked")
+
+  @Inherited
+
+  @SuppressWarnings
+
+  @SuppressWarnings("ignore")
+
+  @SuppressWarnings("unchecked")
+
+  None of the above
+
+  Answer:
+  F. The @SafeVarargs annotation does not take a value and can be applied only to methods that cannot be overridden (marked private, static, or final). For these reasons, options A and B produce compilation errors. Option C also does not compile, as this annotation can be applied only to other annotations. Even if you didn't remember that, it's clear it has nothing to do with hiding a compiler warning. Option D does not compile as @SuppressWarnings requires a value. Both options E and F allow the code to compile without error, although only option F will cause a compile without warnings. The unchecked value is required when performing unchecked generic operations.
+  -------------------------
+
+  @interface Strong {
+          2:    int force(); }
+          3: @interface Wind {
+          4:    public static final int temperature = 20;
+          5:    Boolean storm() default true;
+          6:    public void kiteFlying();
+          7:    protected String gusts();
+          8:    Strong power() default @Strong(10); which lines dont compile, and why: use min words
+          9: }
+
+
+  Line 4: but compiles: public static final is redundant in annotations; fields are implicitly public static final.
+  line 5:  Boolean (wrapper class) is not allowed as an annotation return type. Annotations only support primitive types, String, Class, enums, other annotations, or arrays of these types. It should use boolean (the primitive type) instead.
+  Line 6: void is not valid return type
+  Line 7: Methods in annotations can't be protected; they must be implicitly public.
+  --------------------------------
+  Which annotations can be added to an existing method declaration but could cause a compiler error depending on the method signature? (Choose all that apply.)
+
+  @Override
+
+  @Deprecated
+
+  @FunctionalInterface
+
+  @Repeatable
+
+  @Retention
+
+  @SafeVarargs
+
+  Answer:
+  A, F. The @Override annotation can be applied to a method but will trigger a compiler error if the method signature does not match an inherited method, making option A correct. The annotation @Deprecated can be applied to a method but will not trigger any compiler errors based on the method signature. The annotations @FunctionalInterface, @Repeatable, and @Retention cannot be applied to methods, making these options incorrect. Finally, @SafeVarargs can be applied to a method but will trigger a compiler error if the method does not contain a varargs parameter or is able to be overridden (not marked private, static, or final).
+  ----------------------------------
+  !!!! @SafeVarargs can be applied to a method but will trigger a compiler error if the method does not contain a varargs parameter or is able to be overridden (not marked private, static, or final). !!!!!
+  ----------------------------------------------------------
+
+  Given the Floats annotation declaration, which lines in the Birch class contain compiler errors? (Choose all that apply.)
+
+          // Floats.java
+          import java.lang.annotation.*;
+          @Target(ElementType.TYPE_USE)
+          public @interface Floats {
+             int buoyancy() default 2;
+          }
+
+          // Birch.java
+          1: import java.util.function.Predicate;
+          2: interface Wood {}
+          3: @Floats class Duck {}
+          4: @Floats
+          5: public class Birch implements @Floats Wood {
+          6:    @Floats(10) boolean mill() {
+          7:       Predicate<Integer> t = (@Floats Integer a) -> a> 10;
+          8:       return (@Floats) t.test(12);
+          9:    } }
+  Line 3
+
+  Line 4
+
+  Line 5
+
+  Line 6
+
+  Line 7
+
+  Line 8
+
+  None of the above. All of the lines compile without issue.
+
+  Answer:
+  D, F. Line 6 contains a compiler error since the element name buoyancy is required in the annotation. If the element were renamed to value() in the annotation declaration, then the element name would be optional. Line 8 also contains a compiler error. While an annotation can be used in a cast operation, it requires a type. If the cast expression was changed to (@Floats boolean), then it would compile. The rest of the code compiles without issue.
+---------------------------------
+The @Inherited annotation determines whether or not annotations defined in a super type are automatically inherited in a child type. The @Target annotation determines the location or locations an annotation can be applied to. Since this was not an answer choice, option G is correct. Note that ElementType is an enum used by @Target, but it is not an annotation.
+-----------------------------------------------------------------------
+If @SuppressWarnings("deprecation") is applied to a method that is using a deprecated API, then warnings related to the usage will not be shown at compile time, making option F correct. Note that there are no built-in annotations called @Ignore or @IgnoreDeprecated.
+-----------------------------------------------------------------
+The main() method in the following program reads the annotation value() of Plumber at runtime on each member of Team. It compiles and runs without any errors. Based on this, how many times is Mario printed at runtime?
+
+        import java.lang.annotation.*;
+        import java.lang.reflect.Field;
+        @interface Plumber {
+           String value() default "Mario";
+        }
+
+        public class Team {
+           @Plumber("") private String foreman = "Mario";
+           @Plumber private String worker = "Kelly";
+           @Plumber("Kelly") private String trainee;
+
+           public static void main(String[] args) {
+              var t = new Team();
+              var fields = t.getClass().getDeclaredFields();
+              for (Field field : fields)
+                 if(field.isAnnotationPresent(Plumber.class))
+                    System.out.print(field.getAnnotation(Plumber.class)
+                       .value());
+           }
+        }
+Zero
+
+One
+
+Two
+
+Three
+
+The answer cannot be determined until runtime.
+
+Answer:
+A. This question, like some questions on the exam, includes extraneous information that you do not need to know to solve it. Therefore, you can assume the reflection code is valid. That said, this code is not without problems. The default retention policy for all annotations is RetentionPolicy.CLASS if not explicitly stated otherwise. This means the annotation information is discarded at compile time and not available at runtime. For this reason, none of the members will print anything, making option A correct.
+
+If @Retention(RetentionPolicy.RUNTIME) were added to the declaration of Plumber, then the worker member would cause the default annotation value(), Mario, to be printed at runtime, and option B would be the correct answer. Note that foreman would not cause Mario to be printed even with the corrected retention annotation. Setting the value of the annotation is not the same as setting the value of the variable foreman.
+-----------------------------
+hich annotations, when applied independently, allow the following program to compile? (Choose all that apply.)
+
+        public @interface Dance {
+           long rhythm() default 66;
+           int[] value();
+           String track() default "";
+           final boolean fast = true;
+        }
+        class Sing {
+           ______________ String album;
+        }
+@Dance(77)
+
+@Dance(33, 10)
+
+@Dance(value=5, rhythm=2, fast=false)
+
+@Dance(5, rhythm=9)
+
+@Dance(value=5, rhythm=2, track="Samba")
+
+@Dance()
+
+None of the above
+
+Answer:
+The first argument without a name is applied to the value() element, but value is an array (int[]), so it expects an array format like {5} or more values.
+Annotations don't allow mixing positional and named arguments. You need to either provide the value as @Dance(value={5}, rhythm=9) or use named parameters for both.
+A, E. The annotation includes only one required element, and it is named value(), so it can be used without an element name provided it is the only value in the annotation. For this reason, option A is correct, and options B and D are incorrect. Since the type of the value() is an array, option B would work if it was changed to @Dance({33, 10}). Option C is incorrect because it attempts to assign a value to fast, which is a constant variable not an element. Option E is correct and is an example of an annotation replacing all of the optional values. Option F is incorrect, as value() is a required element.
+---------------------------------------------------------
+When using the @Deprecated annotation, what other annotation should be used and why?
+
+@repeatable, along with a containing type annotation
+
+@retention, along with a location where the value should be discarded
+
+@deprecated, along with a reason why and a suggested alternative
+
+@SuppressWarnings, along with a cause
+
+@Override, along with an inherited reference
+
+Answer:
+C. The Javadoc @deprecated annotation should be used, which provides a reason for the deprecation and suggests an alternative. All of the other answers are incorrect, with options A and B having the wrong case too. Those annotations should be written @Repeatable and @Retention since they are Java annotations.
+-------------------------------------------
