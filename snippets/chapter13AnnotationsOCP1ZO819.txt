@@ -1,4 +1,4 @@
- if you declare a field in an interface like int a = 10, the compiler automatically treats it as public static final.
+ if you declare a field in an INTERFACE like int a = 10, the compiler automatically treats it as public static final.
  =============================
  INTERFACE: non-static methods must be PRIVATE OR DEFAULT
  ==========================================
@@ -45,7 +45,7 @@
           @Rhythm("Country") String lastDisliked;
        }
        -----------------------------
-       The @Override is a marker annotation that is used to indicate a method is overriding an inherited method, whether it be inherited from an interface or parent class. From Chapter 8, “Class Design,” you should know that the overriding method must have the same signature, the same or broader access modifier, and a covariant return type, and not declare any new or broader checked exceptions.
+       The @Override is a marker annotation that is used to indicate a method is overriding an inherited method, whether it be inherited from an interface or parent class. overriding method must have the same signature, the same or broader access modifier, and a covariant return type, and not declare any new or broader checked exceptions.
        ---------------------------
         @Deprecated and @deprecated, the former(first) being a Java annotation and the latter(last) being a Javadoc annotation. Whenever you deprecate a method, you should add a Javadoc annotation to instruct users on how they should update their code.
         -------------------------------------------

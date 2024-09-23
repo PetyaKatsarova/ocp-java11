@@ -10,9 +10,10 @@ public class Annotations2 {
     public @interface Dirt {
         boolean wet();
 
-        String type() ="unknown";
+        String type = "unknown";
 
         public Color color();
 
-        private static final int slippery = 5;
+        static final int slippery = 5;
     }
+}

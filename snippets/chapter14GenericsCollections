@@ -1,0 +1,1181 @@
+Supplier<T>: Return type: T, Method: get(), Parameters: 0
+Consumer<T>: Return type: void, Method: accept(T), Parameters: 1 (T)
+BiConsumer<T, U>: Return type: void, Method: accept(T, U), Parameters: 2 (T, U)
+Predicate<T>: Return type: boolean, Method: test(T), Parameters: 1 (T)
+BiPredicate<T, U>: Return type: boolean, Method: test(T, U), Parameters: 2 (T, U)
+Function<T, R>: Return type: R, Method: apply(T), Parameters: 1 (T)
+BiFunction<T, U, R>: Return type: R, Method: apply(T, U), Parameters: 2 (T, U)
+UnaryOperator<T>: Return type: T, Method: apply(T), Parameters: 1 (T)
+
+-------------------------------------------
+Generics allow you to write code that can handle any type of object while still maintaining type safety. They enable classes, interfaces, and methods to operate on objects of various types while providing compile-time type checking.
+
+Example of Generics:
+
+java
+Copy code
+List<String> list = new ArrayList<>();
+list.add("Hello");
+// list.add(10); // This would cause a compile-time error
+Here, List<String> is a generic collection that only allows String objects. Generics ensure that you can't accidentally add an object of the wrong type.
+--------------------------------------------------------------------
+Main Collection Interfaces:
+List: An ordered collection (sequence) that allows duplicate elements.
+Example: ArrayList, LinkedList.
+Set: A collection that does not allow duplicate elements.
+Example: HashSet, TreeSet.
+Map: A collection of key-value pairs where keys are unique.
+Example: HashMap, TreeMap.
+Queue: A collection that orders elements for processing, usually in a FIFO manner.
+Example: LinkedList, PriorityQueue.
+------------------------------------------------
+There are four formats for method references:
+
+Static methods
+
+Instance methods on a particular instance
+
+Instance methods on a parameter to be determined at runtime
+
+Constructors
+--------------------------------------------
+14: Consumer<List<Integer>> methodRef = Collections::sort;
+15: Consumer<List<Integer>> lambda = x -> Collections.sort(x);
+
+The String class has a startsWith() method that takes one parameter and returns a boolean. Conveniently, a Predicate is a functional interface that takes one parameter and returns a boolean.
+18: var str = "abc";
+19: Predicate<String> methodRef = str::startsWith;
+20: Predicate<String> lambda = s -> str.startsWith(s);
+
+Supplier, which takes zero parameters and returns a value:
+var random = new Random();
+Supplier<Integer> methodRef = random::nextInt;
+Supplier<Integer> lambda = () -> random.nextInt();
+
+23: Predicate<String> methodRef = String::isEmpty;
+24: Predicate<String> lambda = s -> s.isEmpty();
+Line 23 says the method that we want to call is declared in String. It looks like a static method, but it isn't. Instead, Java knows that isEmpty() is an instance method that does not take any parameters. Java uses the parameter supplied at runtime as the instance on which the method is called.
+
+Compare lines 23 and 24 with lines 19 and 20 of our instance example. They look similar, although one references a local variable named str, while the other only references the functional interface parameters.
+
+You can even combine the two types of instance method references. We are going to use a functional interface called a BiPredicate, which takes two parameters and returns a boolean.
+
+
+26: BiPredicate<String, String> methodRef = String::startsWith;
+27: BiPredicate<String, String> lambda = (s, p) -> s.startsWith(p);
+
+A constructor reference is a special type of method reference that uses new instead of a method, and it instantiates an object. It is common for a constructor reference to use a Supplier as shown here:
+
+
+30: Supplier<List<String>> methodRef = ArrayList::new;
+31: Supplier<List<String>> lambda = () -> new ArrayList();
+
+Method references can be tricky. In our next example, we will use the Function functional interface, which takes one parameter and returns a result. Notice that line 32 in the following example has the same method reference as line 30 in the previous example:
+
+
+32: Function<Integer, List<String>> methodRef = ArrayList::new;
+33: Function<Integer, List<String>> lambda = x -> new ArrayList(x);
+
+A constructor reference is a special type of method reference that uses new instead of a method, and it instantiates an object. It is common for a constructor reference to use a Supplier as shown here:
+
+
+30: Supplier<List<String>> methodRef = ArrayList::new;
+31: Supplier<List<String>> lambda = () -> new ArrayList();
+
+   10: Supplier<Integer> methodRef1 = Penguin::countBabies;
+    11: Supplier<Integer> lambda1 = () -> Penguin.countBabies();
+    12:
+    13: Function<Penguin, Integer> methodRef2 = Penguin::countBabies;
+    14: Function<Penguin, Integer> lambda2 = (x) -> Penguin.countBabies(x);
+    15:
+    16: BiFunction<Penguin, Penguin, Integer> methodRef3 = Penguin::countBabies;
+    17: BiFunction<Penguin, Penguin, Integer> lambda3 =
+    18:    (x, y) -> Penguin.countBabies(x, y);
+    --------------------------------------------------------------------
+
+Boolean.valueOf(true)
+Byte.valueOf((byte) 1)
+Short.valueOf((short) 1)
+Integer.valueOf(1)
+valueOf(1)
+Float.valueOf((float) 1.0)
+Double.valueOf(1.0)
+Character.valueOf('c')
+---------------------------------------------------------------
+ !!! 15: var heights = new ArrayList<Integer>();
+     16: heights.add(null);
+     17: int h = heights.get(0); // NullPointerException
+     a null reference can be assigned to any reference variable
+     calling any method on null gives a NullPointerException
+
+     Speaking of null, one advantage of a wrapper class over a primitive is that it can hold a null value. While null values aren't particularly useful for numeric calculations, they are quite useful in data‐based services. For example, if you are storing a user's location data using (latitude, longitude), it would be a bad idea to store a missing point as (0,0) since that refers to an actual location off the cost of Africa where the user could theoretically be.
+ ------------------------------------------------
+ diamond operator, <> is a shorthand notation that allows you to omit the generic type from the right side of a statement when the type can be inferred
+ List<Integer> list = new ArrayList<>();
+ Map<String,Integer> map = new HashMap<>();
+ Map<Long,List<Integer>> mapOfLists = new HashMap<>();
+
+ The diamond operator cannot be used as the type in a variable declaration. It can be used only on the right side of an assignment operation. For example, none of the following compiles:
+
+ List<> list = new ArrayList<Integer>();      // DOES NOT COMPILE
+ Map<> map = new HashMap<String, Integer>();  // DOES NOT COMPILE
+ class InvalidUse {
+    void use(List<> data) {}                  // DOES NOT COMPILE
+ }
+
+ var list = new ArrayList<Integer>();
+ var list = new ArrayList<>();
+ While they both compile, they are not equivalent. The first one creates an ArrayList<Integer> just like the prior set of examples. The second one creates an ArrayList<Object>. Since there is no generic type specified, it cannot be inferred. Java happily assumes you wanted Object in this scenario.
+ -----------------------------------------------
+
+ COLLECTIONS
+ ==========================================================================
+ interfaces in the Java Collections Framework.
+  List: A list is an ordered collection of elements that allows duplicate entries. Elements in a list can be accessed by an int index.
+  Set: A set is a collection that does not allow duplicate entries.
+  Queue: A queue is a collection that orders its elements in a specific order for processing. A typical queue processes its elements in a first‐in, first‐out order, but other orderings are possible.
+  Map: A map is a collection that maps keys to values, with no duplicate keys allowed. The elements in a map are key/value pairs.
+  Notice that Map doesn't implement the Collection interface. It is considered part of the Java Collections Framework, even though it isn't technically a Collection. It is a collection (note the lowercase), though, in that it contains a group of objects. The reason why maps are treated differently is that they need different methods due to being key/value pairs.
+  ------------------------------
+  7: Collection<String> set = new HashSet<>();
+  8: System.out.println(set.add("Sparrow")); // OUTPUTS: true
+  9: System.out.println(set.add("Sparrow")); // false
+  ------------------
+Java does not allow removing elements from a list while using the enhanced for loop.
+Collection<String> birds = new ArrayList<>();
+birds.add("hawk");
+birds.add("hawk");
+birds.add("hawk");
+
+for (String bird : birds) // ConcurrentModificationException
+   birds.remove(bird);
+Concurrent modification? We don't get to concurrency until Chapter 18. That's right. It is possible to get a ConcurrentModificationException without threads. This is Java's way of complaining that you are trying to modify the list while looping through
+
+.clear() discards all els
+
+4: Collection<String> list = new ArrayList<>();
+5: list.add("Magician");
+6: list.add("Assistant");
+7: System.out.println(list);     // [Magician, Assistant]
+8: list.removeIf(s -> s.startsWith("A"));
+9: System.out.println(list);     // [Magician]
+----------------------------------------------------------------
+Collection<String> cats = Arrays.asList("Annie", "Ripley");
+cats.forEach(System.out::println);
+cats.forEach(c -> System.out.println(c));
+
+. You use a list when you want an ordered collection that can contain duplicate entries. Items can be retrieved and inserted at specific positions in the list based on an int index much like an array. Unlike an array, though, many List implementations can change in size after they are declared.
+---------------------------------------------------------------
+The main benefit of an ArrayList is that you can look up any element in constant time. Adding or removing an element is slower than accessing an element. This makes an ArrayList a good choice when you are reading more often than (or the same amount as) writing to the ArrayList.
+--------------------------------------------------------
+
+A LinkedList is special because it implements both List and Queue. It has all the methods of a List. It also has additional methods to facilitate adding or removing from the beginning and/or end of the list.
+The main benefits of a LinkedList are that you can access, add, and remove from the beginning and end of the list in constant time. The trade‐off is that dealing with an arbitrary index takes linear time. This makes a LinkedList a good choice when you'll be using it as Queue. As you saw in Figure 14.1, a LinkedList implements both the List and Queue interface.
+--------------------------------------------------
+Arrays.asList(varargs): Returns fixed-size list backed by an array. Can add elements? No. Can replace elements? Yes. Can delete elements? No.
+
+List.of(varargs): Returns immutable list. Can add elements? No. Can replace elements? No. Can delete elements? No.
+
+List.copyOf(collection): Returns immutable list with a copy of the original collection's values. Can add elements? No. Can replace elements? No. Can delete elements? No.
+--------------------------------------------
+16: String[] array = new String[] {"a", "b", "c"};
+17: List<String> asList = Arrays.asList(array); // [a, b, c]
+18: List<String> of = List.of(array);           // [a, b, c]
+19: List<String> copy = List.copyOf(asList);    // [a, b, c]
+20:
+21: array[0] = "z";
+22:
+23: System.out.println(asList); // [z, b, c]
+24: System.out.println(of);     // [a, b, c]
+25: System.out.println(copy);   // [a, b, c]
+26:
+27: asList.set(0, "x");
+28: System.out.println(Arrays.toString(array)); // [x, b, c]
+29:
+30: copy.add("y");  // throws UnsupportedOperationException
+-------------------------------------------------------------------------
+7:  System.out.println(list.get(0)); // NY
+8:  list.remove("NY");               // [FL]
+9:  list.remove(0);                  // []
+10: list.set(0, "?");                // IndexOutOfBoundsException
+Line 10 throws an IndexOutOfBoundsException because there are no elements in the List. Since there are no elements to replace, even index 0 isn't allowed.
+
+List<Integer> numbers = Arrays.asList(1, 2, 3);
+numbers.replaceAll(x -> x*2);
+System.out.println(numbers);   // [2, 4, 6]
+
+ Iterator<String> iter = list.iterator();
+    while(iter.hasNext()) {
+       String string = iter.next();
+       System.out.println(string);
+    }
+
+    A HashSet stores its elements in a hash table, which means the keys are a hash and the values are an Object. This means that it uses the hashCode() method of the objects to retrieve them more efficiently.
+
+    The main benefit is that adding elements and checking whether an element is in the set both have constant time. The trade‐off is that you lose the order in which you inserted the elements. Most of the time, you aren't concerned with this in a set anyway, making HashSet the most common set.
+
+    A TreeSet stores its elements in a sorted tree structure. The main benefit is that the set is always in sorted order. The trade‐off is that adding and checking whether an element exists take longer than with a HashSet, especially as the tree grows larger.
+    Set<Character> letters = Set.of('z', 'o', 'o');
+    Set<Character> copy = Set.copyOf(letters);
+
+    3: Set<Integer> set = new HashSet<>();
+    4: boolean b1 = set.add(66);    // true
+    5: boolean b2 = set.add(10);    // true
+    6: boolean b3 = set.add(66);    // false
+    7: boolean b4 = set.add(8);     // true
+    8: set.forEach(System.out::println);
+    Remember that the equals() method is used to determine equality. The hashCode() method is used to know which bucket to look in so that Java doesn't have to look through the whole set to find out whether an object is there. The best case is that hash codes are unique, and Java has to call equals() on only one object. The worst case is that all implementations return the same hashCode(), and Java has to call equals() on every element of the set anyway.
+
+    You saw LinkedList earlier in the List section. In addition to being a list, it is a double‐ended queue. A double‐ended queue is different from a regular queue in that you can insert and remove elements from both the front and back of the queue
+    The main benefit of a LinkedList is that it implements both the List and Queue interfaces. The trade‐off is that it isn't as efficient as a “pure” queue. You can use the ArrayDeque class (short for double‐ended queue) if you need a more efficient queue
+
+==============================================================
+Throws exception on failure? Yes:
+==============================================
+    boolean add(E e): Adds an element to the back of the queue and returns true or throws an exception.
+    E element(): Returns the next element or throws an exception if the queue is empty.
+    E remove(): Removes and returns the next element or throws an exception if the queue is empty.
+   ==================================================================
+  Throws exception on failure? No:
+  ==========================================
+    boolean offer(E e): Adds an element to the back of the queue and returns whether successful.
+    E poll(): Removes and returns the next element or returns null if the queue is empty.
+    E peek(): Returns the next element or returns null if the queue is empty.
+
+    The offer()/ poll()/ peek() methods are more common. This is the standard language people use when working with queues.
+
+    12: Queue<Integer> queue = new LinkedList<>();
+    13: System.out.println(queue.offer(10)); // true // adds el to the back
+    14: System.out.println(queue.offer(4));  // true
+    15: System.out.println(queue.peek());    // 10
+    16: System.out.println(queue.poll());    // 10 //Removes and returns last el or null if the queue is empty.
+    17: System.out.println(queue.poll());    // 4
+    18: System.out.println(queue.peek());    // null
+
+ ====================================
+ Map doesn't extend Collection
+Map.of("key1", "value1", "key2", "value2");
+
+Map.of("key1", "value1", "key2"); // INCORRECT: compiles but throws an error at runtime.
+Map.ofEntries(
+   Map.entry("key1", "value1"),
+   Map.entry("key1", "value1"));
+
+   Map<String, String> map = new HashMap<>();
+   map.put("koala", "bamboo");
+   map.put("lion", "meat");
+   map.put("giraffe", "leaf");
+   String food = map.get("koala"); // bamboo
+   for (String key: map.keySet())
+      System.out.print(key + ","); // koala,giraffe,lion,
+
+      System.out.println(map.contains("lion")); // DOES NOT COMPILE
+      System.out.println(map.containsKey("lion")); // true
+      System.out.println(map.containsValue("lion")); // false
+      System.out.println(map.size()); // 3
+      map.clear();
+      System.out.println(map.size()); // 0
+      System.out.println(map.isEmpty()); // true
+
+   A HashMap stores the keys in a hash table. This means that it uses the hashCode() method of the keys to retrieve their values more efficiently.
+
+   The main benefit is that adding elements and retrieving the element by key both have constant time. The trade‐off is that you lose the order in which you inserted the elements.
+   A TreeMap stores the keys in a sorted tree structure. The main benefit is that the keys are always in sorted order. Like a TreeSet, the trade‐off is that adding and checking whether a key is present takes longer as the tree grows larger.
+---------------------------------------------------------------------------
+Like List, you can create an immutable Set in one line or make a copy of an existing one.
+
+Set<Character> letters = Set.of('z', 'o', 'o');
+Set<Character> copy = Set.copyOf(letters);
+---------------------------------------
+Map<Integer, Character> map = new HashMap<>();
+map.put(1, 'a');
+map.put(2, 'b');
+map.put(3, 'c');
+map.forEach((k, v) -> System.out.println(v));
+// IS SAME AS: !!!
+map.values().forEach(System.out::println);
+// a bit different:
+map.entrySet().forEach(e ->
+   System.out.println(e.getKey() + e.getValue()));
+------------------------------------------------
+The get() method returns null if the requested key is not in map.
+------------ NB ------------------
+21: Map<Integer, Integer> map = new HashMap<>();
+22: map.put(1, 2);
+23: map.put(2, 4);
+24: Integer original = map.replace(2, 10); // 4 returns the replaced value!!!
+25: System.out.println(map);    // {1=2, 2=10}
+26: map.replaceAll((k, v) -> k + v);
+27: System.out.println(map);    // {1=3, 2=12}
+
+Map<String, String> favorites = new HashMap<>();
+favorites.put("Jenny", "Bus Tour");
+favorites.put("Tom", null);
+favorites.putIfAbsent("Jenny", "Tram");
+favorites.putIfAbsent("Sam", "Tram");
+favorites.putIfAbsent("Tom", "Tram");
+System.out.println(favorites); // {Tom=Tram, Jenny=Bus Tour, Sam=Tram}
+----------------------------------
+============= BIFUNCTION ===============================================
+BiFunction is a functional interface that takes two input arguments of any type and returns a result of any type.
+Signature:
+R apply(T t, U u);
+BiFunction<Integer, Integer, Integer> add = (a, b) -> a + b;
+System.out.println(add.apply(2, 3)); // 5
+BiFunction<String, Integer, String> repeat = (s, n) -> s.repeat(n);
+System.out.println(repeat.apply("Hello", 3)); // HelloHelloHello
+
+The merge() method in a Map works like this:
+If the key exists: It combines the current value with the new value using the provided function (longest in thiscase). If the key does not exist: It simply adds the new key-value pair to the map.
+
+BiFunction<String, String, String> longest = (s1, s2) -> s1.length() > s2.length() ? s1 : s2;
+Map<String, String> map = new HashMap<>();
+map.put("A", "Apple");
+map.merge("A", "Banana", longest); // compares "Apple" with "Banana", keeps the longer one
+System.out.println(map); // Output: {A=Banana}
+
+=================================================================================
+The merge() method also has logic for what happens if null values or missing keys are involved. In this case, it doesn't call the BiFunction at all, and it simply uses the new value.
+
+BiFunction<String, String, String> mapper =  (v1, v2) -> v1.length()> v2.length() ? v1 : v2;
+Map<String, String> favorites = new HashMap<>();
+favorites.put("Sam", null);
+favorites.merge("Tom", "Skyride", mapper); // mapper is not called, we dont have key Tom
+favorites.merge("Sam", "Skyride", mapper);
+System.out.println(favorites);   // {Tom=Skyride, Sam=Skyride}
+
+ !!! Notice that the mapping function isn't called. If it were, we'd have a NullPointerException.
+ =============================================================
+ what happens when the mapping function is called and returns null. The key is removed from the map when this happens:
+ BiFunction<String, String, String> mapper = (v1, v2) -> null;
+ Map<String, String> favorites = new HashMap<>();
+ favorites.put("Jenny", "Bus Tour");
+ favorites.put("Tom", "Bus Tour");
+
+ favorites.merge("Jenny", "Skyride", mapper); // deletes entry Jenny cause is set to null
+ favorites.merge("Sam", "Skyride", mapper); // creates entyr Sam=Skyride AND doesnt use mapper cause Sam is new key
+ System.out.println(favorites);   // {Tom=Bus Tour, Sam=Skyride}
+
+ ============ NB ============================
+ how the merge() method works:
+ If the key already exists in the map, the BiFunction (in this case, mapper2) is applied to the current value (existing) and the new value (provided to merge()).
+ If the key does not exist, the new key-value pair is simply added, and the BiFunction is not invoked.
+ =========================================================
+ ArrayList: Java Collections Framework interface: List. Sorted? No. Calls hashCode? No. Calls compareTo? No.
+ LinkedList: Java Collections Framework interface: List, Queue. Sorted? No. Calls hashCode? No. Calls compareTo? No.
+
+ HashMap: Java Collections Framework interface: Map. Sorted? No. Calls hashCode? Yes. Calls compareTo? No.
+ HashSet: Java Collections Framework interface: Set. Sorted? No. Calls hashCode? Yes. Calls compareTo? No.
+
+ TreeMap: Java Collections Framework interface: Map. Sorted? Yes. Calls hashCode? No. Calls compareTo? Yes.
+ TreeSet: Java Collections Framework interface: Set. Sorted? Yes. Calls hashCode? No. Calls compareTo? Yes.
+ ==========================================================================
+                   NB
+ The data structures that involve sorting do not allow null values.
+ =====================================================
+ Vector: Implements List. If you don't need concurrency, use ArrayList instead.
+
+ Hashtable: Implements Map. If you don't need concurrency, use HashMap instead.
+
+ Stack: Implements Queue. If you don't need concurrency, use a LinkedList instead.
+ ===============================================================================
+          SORTING
+ =========================================================================
+ numbers sort before letters, and uppercase letters sort before lowercase letters
+ -------------------------------------------------------------------------
+ Collections.sort() in many of these examples. It returns void because the method parameter is what gets sorted.
+ -------------------------------------------
+public interface Comparable<T> {
+   int compareTo(T o);
+}
+The generic T lets you implement this method and specify the type of your object. This lets you avoid a cast when implementing compareTo(). Any object can be Comparable
+------------------------
+import java.util.*;
+public class Duck implements Comparable<Duck> {
+   private String name;
+   public Duck(String name) {
+      this.name = name;
+   }
+   public String toString() { // use readable output
+      return name;
+   }
+   public int compareTo(Duck d) {
+      return name.compareTo(d.name); // sorts ascendingly by name
+   }
+   public static void main(String[] args) {
+      var ducks = new ArrayList<Duck>();
+      ducks.add(new Duck("Quack"));
+      ducks.add(new Duck("Puddles"));
+      Collections.sort(ducks);   // sort by name
+      System.out.println(ducks); // [Puddles, Quack]
+}}
+----------------------------------
+The Duck class overrides the toString() method from Object, which we described in Chapter 12. This override provides useful output when printing out ducks. Without this override, the output would be something like [Duck@70dea4e, Duck@5c647e05]—hardly useful in seeing which duck's name comes first.
+---------------------------------------------------------
+1:  public class Animal implements Comparable<Animal> {
+2:     private int id;
+3:     public int compareTo(Animal a) {
+4:        return id – a.id; // sorts ascending by id
+5:     }
+6:     public static void main(String[] args) {
+7:        var a1 = new Animal();
+8:        var a2 = new Animal();
+9:        a1.id = 5;
+10:       a2.id = 7;
+11:       System.out.println(a1.compareTo(a2)); // -2
+12:       System.out.println(a1.compareTo(a1)); // 0
+13:       System.out.println(a2.compareTo(a1)); // 2
+14:    } }
+
+ Integer.compare(id, a.id) instead. Be sure to be able to recognize both approaches.
+Remember that id ‐ a.id sorts in ascending order, and a.id ‐ id sorts in descending order.
+----------------------------------------
+ When writing your own compare methods, you should check the data before comparing it if is not validated ahead of time.
+public class MissingDuck implements Comparable<MissingDuck> {
+   private String name;
+   public int compareTo(MissingDuck quack) {
+      if (quack == null)
+         throw new IllegalArgumentException("Poorly formed duck!");
+      if (this.name == null && quack.name == null)
+         return 0;
+      else if (this.name == null) return -1;
+      else if (quack.name == null) return 1;
+      else return name.compareTo(quack.name);
+   }
+}
+------------------------------------------------------------------
+You are strongly encouraged to make your Comparable classes consistent with equals because not all collection classes behave predictably if the compareTo() and equals() methods are not consistent.
+
+public class Product implements Comparable<Product> {
+   private int id;
+   private String name;
+
+   public int hashCode() { return id; }
+   public boolean equals(Object obj) {
+      if(!(obj instanceof Product)) return false;
+      var other = (Product) obj;
+      return this.id == other.id;
+   }
+   public int compareTo(Product obj) {
+      return this.name.compareTo(obj.name);
+   } }
+You might be sorting Product objects by name, but names are not unique. Therefore, the return value of compareTo() might not be 0 when comparing two equal Product objects, so this compareTo() method is not consistent with equals. One way to fix that is to use a Comparator to define the sort elsewhere.
+------------------------------------------
+ import java.util.ArrayList;
+2:  import java.util.Collections;
+3:  import java.util.Comparator;
+4:
+5:  public class Duck implements Comparable<Duck> {
+6:     private String name;
+7:     private int weight;
+8:
+9:     // Assume getters/setters/constructors provided
+10:
+11:    public String toString() { return name; }
+12:
+----------------------------------------------------------------------
+13:    public int compareTo(Duck d) {
+14:       return name.compareTo(d.name);
+15:    }
+-----------------------------------------------------------------------
+16:
+17:    public static void main(String[] args) {
+     ======================================================================
+      Comparator<Duck> byWeight = new Comparator<Duck>() {
+19:          public int compare(Duck d1, Duck d2) {
+20:             return d1.getWeight()-d2.getWeight();
+21:          }
+22:       };
+========================================================================================
+23:       var ducks = new ArrayList<Duck>();
+24:       ducks.add(new Duck("Quack", 7));
+25:       ducks.add(new Duck("Puddles", 10));
+26:       Collections.sort(ducks);
+27:       System.out.println(ducks); // [Puddles, Quack]
+28:       Collections.sort(ducks, byWeight);
+29:       System.out.println(ducks); // [Quack, Puddles]
+30:    }
+31: }                                                                                                                   Comparable and Comparator are in different packages, namely, java.lang versus java.util, respectively. That means Comparable can be used without an import statement, while Comparator cannot.                                                                        .
+-----------------------------------------------------
+Comparable
+
+Package name: java.lang
+Interface must be implemented by class comparing? Yes
+Method name in interface: compareTo()
+Number of parameters: 1
+Common to declare using a lambda: No
+
+Comparator
+
+Package name: java.util
+Interface must be implemented by class comparing? No
+Method name in interface: compare()
+Number of parameters: 2
+Common to declare using a lambda: Yes
+
+var byWeight = new Comparator<Duck>() { // DOES NOT COMPILE
+   public int compareTo(Duck d1, Duck d2) {  // method name is compare()
+      return d1.getWeight()-d2.getWeight();
+   }
+};
+
+==============================================
+If species names were null, the code could throw a NullPointerException when calling compareTo() on a null value.compareTo() is a method defined in the Comparable interface, which belongs to the package java.lang.:
+
+public class MultiFieldComparator implements Comparator<Squirrel> {
+   public int compare(Squirrel s1, Squirrel s2) {
+      int result = s1.getSpecies().compareTo(s2.getSpecies());
+      if (result != 0) return result;
+      return s1.getWeight()-s2.getWeight();
+   }}
+   ---------------------------------
+   public int compare(Squirrel s1, Squirrel s2) {
+      if (s1.getSpecies() == null && s2.getSpecies() == null) return 0;
+      if (s1.getSpecies() == null) return -1;
+      if (s2.getSpecies() == null) return 1;
+
+      int result = s1.getSpecies().compareTo(s2.getSpecies());
+      if (result != 0) return result;
+      return s1.getWeight() - s2.getWeight();
+   }
+
+---------------------------------------------------------------
+Comparator<Squirrel> c = Comparator.comparing(Squirrel::getSpecies)
+   .thenComparingInt(Squirrel::getWeight);
+
+   var c = Comparator.comparing(Squirrel::getSpecies).reversed();
+   ---------------------------------------------
+   2: public class SortRabbits {
+   3:    static class Rabbit{ int id; }
+   4:    public static void main(String[] args) {
+   5:       List<Rabbit> rabbits = new ArrayList<>();
+   6:       rabbits.add(new Rabbit());
+   7:       Collections.sort(rabbits); // DOES NOT COMPILE
+   8:    } }
+   Java knows that the Rabbit class is not Comparable. It knows sorting will fail, so it doesn't even let the code compile. You can fix this by passing a Comparator to sort(). Remember that a Comparator is useful when you want to specify sort order without using a compareTo() method.
+
+
+   2: public class SortRabbits {
+   3:    static class Rabbit{ int id; }
+   4:    public static void main(String[] args) {
+   5:       List<Rabbit> rabbits = new ArrayList<>();
+   6:       rabbits.add(new Rabbit());
+   7:       Comparator<Rabbit> c = (r1, r2) -> r1.id - r2.id;
+   8:       Collections.sort(rabbits, c);
+   9:    } }
+   ----------------------------------------------------------------------------------------------
+   The binarySearch() method requires a sorted List.
+
+   11: List<Integer> list = Arrays.asList(6,9,1,8);
+   12: Collections.sort(list); // [1, 6, 8, 9]
+   13: System.out.println(Collections.binarySearch(list, 6)); // 1
+   14: System.out.println(Collections.binarySearch(list, 3)); // -2
+   Line 12 sorts the List so we can call binary search properly. Line 13 prints the index at which a match is found. Line 14 prints one less than the negated index of where the requested value would need to be inserted. The number 3 would need to be inserted at index 1 (after the number 1 but before the number 6). Negating that gives us −1, and subtracting 1 gives us −2.
+
+============================================================================
+3: var names = Arrays.asList("Fluffy", "Hoppy");
+4: Comparator<String> c = Comparator.reverseOrder();
+5: var index = Collections.binarySearch(names, "Hoppy", c);
+6: System.out.println(index);
+The correct answer is ‐1. Before you panic, you don't need to know that the answer is ‐1. You do need to know that the answer is not defined. Line 3 creates a list, [Fluffy, Hoppy]. This list happens to be sorted in ascending order. Line 4 creates a Comparator that reverses the natural order. Line 5 requests a binary search in descending order. Since the list is in ascending order, we don't meet the precondition for doing a search.
+===================================
+
+ Set<Rabbit> rabbits = new TreeSet<>((r1, r2) -> r1.id-r2.id);
+9: rabbits.add(new Rabbit());
+-------------------------------------------------
+A type parameter can be named anything you want. The convention is to use single uppercase letters to make it obvious that they aren't real class names. The following are common letters to use:
+
+E for an element
+
+K for a map key
+
+V for a map value
+
+N for a number
+
+T for a generic data type
+
+S, U, V, and so forth for multiple generic types
+---------------------------------------
+Behind the scenes, the compiler replaces all references to T in Crate with Object. In other words, after the code compiles, your generics are actually just Object types. The Crate class looks like the following at runtime:
+
+    public class Crate {
+       private Object contents;
+       public Object emptyCrate() {
+          return contents;
+       }
+       public void packCrate(Object contents) {
+          this.contents = contents;
+       }
+    }
+This means there is only one class file. There aren't different copies for different parameterized types. (Some other languages work that way.)
+This process of removing the generics syntax from your code is referred to as type erasure. Type erasure allows your code to be compatible with older versions of Java that do not contain generics.
+The compiler adds the relevant casts for your code to work with this type of erased class.
+    Robot r = crate.emptyCrate();
+The compiler turns it into the following:
+    Robot r = (Robot) crate.emptyCrate();
+
+public interface Shippable<T> {
+   void ship(T t);
+}
+============================
+3 ways to create generic class:
+=================================
+class ShippableRobotCrate implements Shippable<Robot> {
+   public void ship(Robot t) { }
+}
+
+class ShippableAbstractCrate<U> implements Shippable<U> {
+   public void ship(U t) { }
+}
+
+
+class ShippableCrate implements Shippable {
+   public void ship(Object t) { }
+}
+Above is the old way of writing code. --- !! --It generates a compiler warning about Shippable being a raw type, but it does compile--- !! ----. Here the ship() method has an Object parameter since the generic type is not defined
+------------------------------------------
+public class Handler {
+   public static <T> void prepare(T t) {
+      System.out.println("Preparing " + t);
+   }
+   public static <T> Crate<T> ship(T t) {
+      System.out.println("Shipping " + t);
+      return new Crate<T>();
+   }
+   ----------------------------------------
+static methods since they aren't part of an instance that can declare the type. However, it is also allowed on non‐ static methods.
+2: public class More {
+3:    public static <T> void sink(T t) { }
+4:    public static <T> T identity(T t) { return t; }
+5:    public static T noGood(T t) { return t; } // DOES NOT COMPILE
+6: }
+-------------------------------------------
+ Box.<String>ship("package");
+Box.<String[]>ship(args);
+
+When you have a method declare a generic parameter type, it is independent of the class generics.
+1: public class Crate<T> {
+2:    public <T> T tricky(T t) {
+3:       return t;
+4:    }
+5: }
+--------------------------------------------
+ !!!!
+ 10: public static String createName() {
+ 11:    Crate<Robot> crate = new Crate<>();
+ 12:    return crate.tricky("bot"); // returns a String not Robot!!
+ 13: }
+ The T in the class and the T in the method don't have to be the same type. The method defines its own generic type T, which is independent of the class-level T.
+========================================
+!!! A bounded parameter type is a generic type that specifies a bound for the generic.
+Generic Wildcards
+-------------------
+allow flexibility with generics by using the ? symbol to represent an unknown type:
+
+Unbounded Wildcard:
+List<?> list = new ArrayList<String>();  // Can hold any type of list
+
+Upper-Bounded Wildcard:
+List<? extends Number> list = new ArrayList<Integer>();  // Any subclass of Number
+
+Lower-Bounded Wildcard:
+List<? super Integer> list = new ArrayList<Number>();  // Any superclass of In
+------------------------------------------------------
+
+public static void printList(List<Object> list) {
+for (Object x: list)
+   System.out.println(x);
+}
+public static void main(String[] args) {
+   List<String> keywords = new ArrayList<>();
+   keywords.add("java");
+   printList(keywords); // DOES NOT COMPILE
+}
+The code doesn't compile because List<String> is not the same as List<Object>. Java is type-safe, and a List<Object> can hold any type, while a List<String> is restricted to String. The method expects List<Object>, but you're passing List<String>, causing a type mismatch.
+-------------------------------------------------
+public static void printList(List<?> list) {
+for (Object x: list)
+   System.out.println(x);
+}
+public static void main(String[] args) {
+   List<String> keywords = new ArrayList<>();
+   keywords.add("java");
+   printList(keywords);
+}
+----------------------------
+List<?> x1 = new ArrayList<>();
+var x2 = new ArrayList<>();
+They are not. There are two key differences. First, x1 is of type List, while x2 is of type ArrayList. Additionally, we can only assign x2 to a List<Object>. These two variables do have one thing in common. Both return type Object when calling the get() method.
+----------------------
+ArrayList<Number> list = new ArrayList<Integer>(); // DOES NOT COMPILE
+Instead, we need to use a wildcard:
+List<? extends Number> list = new ArrayList<Integer>();
+The upper‐bounded wildcard says that any class that extends Number or Number itself can be used as the formal parameter type:
+public static long total(List<? extends Number> list) {
+   long count = 0;
+   for (Number number: list)
+      count += number.longValue();
+   return count;
+}
+-----------------------------
+ static class Sparrow extends Bird { }
+3: static class Bird { }
+4:
+5: public static void main(String[] args) {
+6:    List<? extends Bird> birds = new ArrayList<Bird>();
+7:    birds.add(new Sparrow()); // DOES NOT COMPILE
+8:    birds.add(new Bird());    // DOES NOT COMPILE
+9: }
+The problem stems from the fact that Java doesn't know what type List<? extends Bird> really is. It could be List<Bird> or List<Sparrow> or some other generic type that hasn't even been written yet. Line 7 doesn't compile because we can't add a Sparrow to List<? extends Bird>, and line 8 doesn't compile because we can't add a Bird to List<Sparrow>. From Java's point of view, both scenarios are equally possible, so neither is allowed.
+-----------------------------------
+
+interface Flyer { void fly(); }
+class HangGlider implements Flyer { public void fly() {} }
+class Goose implements Flyer { public void fly() {} }
+We also have two methods that use it. One just lists the interface, and the other uses an upper bound.
+
+private void anyFlyer(List<Flyer> flyer) {}
+private void groupOfFlyers(List<? extends Flyer> flyer) {}
+Note that we used the keyword extends rather than implements. Upper bounds are like anonymous classes in that they use extends regardless of whether we are working with a class or an interface.
+------------------------------
+- - - NB - - -
+// Cannot add to unbounded wildcard lists, they are immutable
+List<?> list1 = new ArrayList<String>();
+// list1.add("quack"); // DOES NOT COMPILE
+
+// Cannot add to upper-bounded wildcard lists, they are also immutable
+List<? extends Object> list2 = new ArrayList<String>();
+// list2.add("quack"); // DOES NOT COMPILE
+
+// Can only pass exact List<Object>, no other types
+List<Object> list3 = new ArrayList<Object>();
+list3.add("quack");  // Compiles
+
+// Lower-bounded wildcard allows adding String or its subtypes
+List<? super String> list4 = new ArrayList<Object>();
+list4.add("quack");  // Compiles
+=====================================================================
+ 3: List<? super IOException> exceptions = new ArrayList<Exception>();
+    4: exceptions.add(new Exception()); // DOES NOT COMPILE
+    5: exceptions.add(new IOException());
+    6: exceptions.add(new FileNotFoundException());
+------------------------------------------------------------------
+List<? extends B> list4 = new ArrayList<A>(); // DOES NOT COMPILE
+10: List<? super B> list5 = new ArrayList<A>();
+11: List<?> list6 = new ArrayList<? extends A>(); // DOES NOT COMPILE
+line 11 allows a reference to any generic type since it is an unbounded wildcard. The problem is that you need to know what that type will be when instantiating the ArrayList. It wouldn't be useful anyway, because you can't add any elements to that ArrayList.
+------------------------------------------------------------
+public static void addSound(List<? super String> list) {
+   list.add("quack");
+}
+List<String> strings = new ArrayList<String>();
+strings.add("tweet");
+List<Object> objects = new ArrayList<Object>(strings); // !!! You cannot pass List<String> to List<Object>. Generic types must match exactly (List<String> is not List<Object>). !!!
+addSound(strings);
+addSound(objects);
+----------------------------------
+List<? super IOException> exceptions = new ArrayList<Exception>();
+This compiles. The list can hold IOException or its subclasses because the wildcard is lower-bounded by IOException. The actual list is ArrayList<Exception>, which works because Exception is a superclass of IOException.
+Line 4:
+exceptions.add(new Exception()); // DOES NOT COMPILE
+This does not compile because Exception is a superclass of IOException, and you are restricted to adding IOException and its subclasses.
+Line 5:
+exceptions.add(new IOException()); // Compiles
+This compiles because IOException is exactly the type allowed by List<? super IOException>.
+Line 6:
+exceptions.add(new FileNotFoundException()); // Compiles
+This compiles because FileNotFoundException is a subclass of IOException. Since the list can accept IOException, it can also accept any subclass of it.
+----------------------------------------------------------------------------------------------------------
+Upper-Bounded Wildcard (? extends Type)
+Use Case: When you want to read from a list of a type or its subclasses but cannot add to it.
+
+Example:
+
+public static void printNumbers(List<? extends Number> list) {
+    for (Number number : list) {
+        System.out.println(number);
+    }
+}
+
+List<Integer> integers = List.of(1, 2, 3);
+printNumbers(integers); // Compiles
+Why not add?: You can't add because the exact type isn't known at runtime, and adding could violate the type.
+
+Lower-Bounded Wildcard (? super Type)
+Use Case: When you want to add a type or its subclasses to the list but have limited access for reading.
+Example:
+public static void addToList(List<? super Integer> list) {
+    list.add(10); // Compiles
+}
+Summary:
+? extends: For reading, no adding.
+? super: For adding, limited reading.
+-----------------------------------
+<T> T first(List<? extends T> list) {
+   return list.get(0);
+}
+<T> <? extends T> second(List<? extends T> list) { // DOES NOT COMPILE
+   return list.get(0);
+}
+The next method, second(), does not compile because the return type isn't actually a type. You are writing the method. You know what type it is supposed to return. You don't get to specify this as a wildcard.
+
+<B extends A> B third(List<B> list) {
+   return new B(); // DOES NOT COMPILE
+}
+
+ <B extends A> B third(List<B> list):
+The method doesn't compile because you cannot instantiate a generic type like new B(). In Java, generic types are erased at runtime, so you don’t know the exact type of B at runtime.
+return new B(); // DOES NOT COMPILE
+
+ Line 6: List<?> list1 = new ArrayList<A>();
+Unbounded wildcard (?): This list can hold elements of any type, but you cannot add elements to it because its type is unknown. Only reading is safe, but the elements will be of type Object.
+
+Line 7: List<? extends A> list2 = new ArrayList<A>();
+Upper-bounded wildcard (? extends A): This list can hold subclasses of A, but you cannot add elements to it because the exact type is unknown. You can read, but the elements are guaranteed to be of type A or its subclasses.
+
+Line 8: List<? super A> list3 = new ArrayList<A>();
+Lower-bounded wildcard (? super A): This list can hold A and any superclass of A. You can add A or its subclasses to it, but reading is limited (you only know elements are Object).
+
+new B() doesn't compile due to type erasure.
+List<?>: No adding, only safe to read as Object.
+List<? extends A>: No adding, read as A or subclass.
+List<? super A>: Can add A or subclass, but limited reading (Object).
+
+void fourth(List<? super B> list) {}
+We finally get a method, fourth(), which is a normal use of generics. You can pass the types List<B>, List<A>, or List<Object>.
+
+<X> void fifth(List<X super B> list) { // DOES NOT COMPILE
+}
+This last method, fifth(), does not compile because it tries to mix a method‐specific type parameter with a wildcard. A wildcard must have a ? in it.
+-----------------------------------------------------------------------
+============ SUMMARY =================
+A method reference is a compact syntax for writing lambdas that refer to methods. There are four types: static methods, instance methods on a particular object, instance methods on a parameter, and constructor references.
+
+The Java Collections Framework includes four main types of data structures: lists, sets, queues, and maps. The Collection interface is the parent interface of List, Set, and Queue. The Map interface does not extend Collection
+
+List: An ordered collection of elements that allows duplicate entries
+ArrayList: Standard resizable list
+LinkedList: Can easily add/remove from beginning or end
+Set: Does not allow duplicates
+HashSet: Uses hashCode() to find unordered elements
+TreeSet: Sorted. Does not allow null values
+
+Queue: Orders elements for processing
+
+LinkedList: Can easily add/remove from beginning or end
+
+Map: Maps unique keys to values
+
+HashMap: Uses hashCode() to find keys
+
+TreeMap: Sorted map. Does not allow null keys
+
+The Comparable interface declares the compareTo() method. This method returns a negative number if the object is smaller than its argument, 0 if the two objects are equal, and a positive number otherwise. The compareTo() method is declared on the object that is being compared, and it takes one parameter. The Comparator interface defines the compare() method. A negative number is returned if the first argument is smaller, zero if they are equal, and a positive number otherwise. The compare() method can be declared in any code, and it takes two parameters. Comparator is often implemented using a lambda.
+
+The Arrays and Collections classes have methods for sort() and binarySearch(). Both take an optional Comparator parameter. It is necessary to use the same sort order for both sorting and searching, so the result is not undefined.
+
+. You can use any name you want for the type parameter. Single uppercase letters are common choices.
+
+Generics allow you to specify wildcards. <?> is an unbounded wildcard that means any type. <? extends Object> is an upper bound that means any type that is Object or extends it. <? extends MyInterface> means any type that implements MyInterface. <? super Number> is a lower bound that means any type that is Number or a superclass. A compiler error results from code that attempts to add an item in a list with an unbounded or upper‐bounded wildcard.
+===========================================================================================
+ 12: List<?> q = List.of("mouse", "parrot");
+  13: var v = List.of("mouse", "parrot");
+  14:
+  15: q.removeIf(String::isEmpty);
+  16: q.removeIf(s -> s.length() == 4);
+  17: v.removeIf(String::isEmpty);
+  18: v.removeIf(s -> s.length() == 4);
+
+  Line 12 creates a List<?>, which means it is treated as if all the elements are of type Object rather than String. Lines 15 and 16 do not compile since they call the String methods isEmpty() and length(), which are not defined on Object. Line 13 creates a List<String> because var uses the type that it deduces from the context. Lines 17 and 18 do compile. However, List.of() creates an immutable list, so both of those lines would throw an UnsupportedOperationException if run. Therefore, options C and G are correct:
+  Exactly two of these lines contain a compiler error.
+  If all lines with compiler errors are removed, this code throws an exception.
+  ---------------------------------------------------------------
+
+    3:  var greetings = new LinkedList<String>();
+    4:  greetings.offer("hello");
+    5:  greetings.offer("hi");
+    6:  greetings.offer("ola");
+    7:  greetings.pop();
+    8:  greetings.peek();
+    9:  while (greetings.peek() != null)
+    10:    System.out.print(greetings.pop());
+
+    -----------------------------------
+    The answer needs to implement List because the scenario allows duplicates. Since you need a List, you can eliminate options C and D immediately because HashMap is a Map and HashSet is a Set. Option A, Arrays, is trying to distract you. It is a utility class rather than a Collection. An array is not a collection. This leaves you with options B and E. Option B is a better answer than option E because LinkedList is both a List and a Queue, and you just need a regular List.
+    --------------------------------------------------
+
+List<?> q = List.of("mouse", "parrot")
+A List<?> is a list with an unknown type. When you write List<?> q = List.of("mouse", "parrot");, it creates an immutable list of two strings ("mouse", "parrot"). The wildcard ? allows the list to hold any type, but in this case, it's holding String values. However, since the type is unknown, you can’t add elements to this list or assume anything about its element types except that they are objects.
+----------------------------------------------------------
+ 3:  var greetings = new LinkedList<String>();
+  4:  greetings.offer("hello"); // add at back of list
+  5:  greetings.offer("hi");
+  6:  greetings.offer("ola");
+  7:  greetings.pop(); // removes first ell
+  8:  greetings.peek(); // looks at the first el
+  9:  while (greetings.peek() != null) // loops at first ell
+  10:    System.out.print(greetings.pop());
+  //output hiola
+  Note that we don't use an Iterator to loop through the LinkedList to avoid concurrent modification issues. The order in which the elements are stored internally is not part of the API contract.
+  --------------------------------------------+
+List<> list = new ArrayList<String>(); //does not compile: the diamond operator is allowed only on the right side.
+---------------------------------------------
+class Hello<T> {
+    T t;
+    public Hello(T t) {
+        this.t = t;
+    }
+    public String toString() {
+        return t.toString();
+    }
+    private <T> void println(T message) {
+        System.out.print(t + "-" + message);
+    }
+    public static void main(String[] args) {
+        new Hello<String>("hi").println(1);
+        new Hello("hola").println(true);
+    }
+}
+=======================================================
+there is no thenComparingNumber() method.
+we can call either thenComparing() or thenComparingInt() because the former(last) will simply autobox the int into an Integer.
+ Collections.sort(list, Comparator.comparing
+ (Platypus::getName)
+       .thenComparing(
+          Comparator.comparing(Platypus::getBeakLength)
+       .reversed()));
+above option is incorrect because it sorts by name in ascending order and only reverses the beak length of those with the same name.
+--------------------------------------
+
+println(1) accepts an Integer (1) as message, even though the class-level T is String. This works because the method uses its own generic <T>, which allows it to accept any type (Integer in this case).
+----------------------------------------------------------------------------------------------------------
+!!! The Map interface uses put() rather than add() to add elements to the map !!!
+-----------------------------------------------
+ 3:  public class MyComparator implements Comparator<String> {
+  4:     public int compare(String a, String b) {
+  5:        return b.toLowerCase().compareTo(a.toLowerCase());
+  6:     }
+  7:     public static void main(String[] args) {
+  8:        String[] values = { "123", "Abb", "aab" };
+  9:        Arrays.sort(values, new MyComparator());
+  10:       for (var s: values)
+  11:          System.out.print(s + " ");
+  12:    }
+  13: }
+  Comparator<String> is a functional interface that allows custom comparison logic for sorting objects (in this case, String objects).
+  It implements:
+  The compare(T a, T b) method, which compares two objects a and b and returns an integer result.
+  The result of compare():
+  A negative integer if a should come before b.
+  A positive integer if a should come after b.
+  Zero if a and b are equal in the sort order.
+  compare() vs compareTo():
+  compare():
+  In this example, public int compare(String a, String b) defines how two String objects are compared.
+  It uses b.toLowerCase().compareTo(a.toLowerCase()) to reverse the natural order of strings (because b is compared to a).
+  This makes the sorting case-insensitive and in reverse alphabetical order.
+  compareTo():
+  This method is part of the Comparable interface, which is implemented by String. compareTo() compares two strings lexicographically (based on character order).
+  ----------------------------
+    2:  public class Helper {
+    3:     public static <U extends Exception>
+    4:        void printException(U u) {
+    5:
+    6:        System.out.println(u.getMessage());
+    7:     }
+    8:     public static void main(String[] args) {
+    9:        Helper.___________________________________;
+    10:    } }
+
+printException(new FileNotFoundException("A"))
+Works: FileNotFoundException extends Exception.
+
+printException(new Exception("B"))
+Works: Exception is a direct match.
+
+<Throwable>printException(new Exception("C"))
+Compile-time error: Throwable is not allowed; <U> must extend Exception, not Throwable.
+
+<NullPointerException>printException(new NullPointerException("D"))
+Works: NullPointerException extends Exception.
+
+printException(new Throwable("E"))
+Compile-time error: Throwable doesn’t extend Exception.
+----------------------------
+  public class Sorted  implements Comparable<Sorted>, Comparator<Sorted> {
+       private int num;
+     private String text;
+     ........
+ var s1 = new Sorted(88, "a");
+        var s2 = new Sorted(55, "b");
+        var t1 = new TreeSet<Sorted>(); // no args: uses comparable
+        t1.add(s1);
+        t1.add(s2);
+        var t2 = new TreeSet<Sorted>(s1); // args(s1): uses comparator
+        t2.add(s1);
+        t2.add(s2);
+This question is difficult because it defines both Comparable and Comparator on the same object. The t1 object doesn't specify a Comparator, so it uses the Comparable object's compareTo() method. This sorts by the text instance variable. The t2 object did specify a Comparator when calling the constructor, so it uses the compare() method, which sorts by the int.
+------------------------------------------------
+When using binarySearch(), the List must be sorted in the same order that the Comparator uses. Since the binarySearch() method does not specify a Comparator explicitly, the default sort order is used. Only c2 uses that sort order and correctly identifies that the value 2 is at index 0.
+----------------------------------------------------------------------
+!!!! The java.lang.Comparable;  java.util.Comparator !!!
+--------------------------------------------------------------------------------
+!!!  While you can use the diamond operator <> and the wildcard ? on variables and parameters, you cannot use them in a class declaration. !!!
+public List<?> getList() {
+    return new ArrayList<String>(); // Returns a list of unknown type
+}
+
+===========================================
+  class W {}
+  class X extends W {}
+  class Y extends X {}
+  class Z<Y> {
+  // INSERT CODE HERE
+  }
+
+W w1 = new W();
+
+W w2 = new X();
+
+W w3 = new Y();
+
+Y y1 = new W();
+
+Y y2 = new X();
+
+Y y1 = new Y();
+
+Answer:
+A, B. Y is both a class and a type parameter. This means that within the class Z, when we refer to Y, it uses the type parameter. All of the choices that mention class Y are incorrect because it no longer means the class Y.
+===========================================================================
+
+ 3: ______________<Integer> q = new LinkedList<>();
+  4: q.add(10);
+  5: q.add(12);
+  6: q.remove(1);
+  7: System.out.print(q);
+
+  If we fill in the blank with List, the output is [10].
+   If we fill in the blank with Queue, the output is [10, 12].
+
+  A LinkedList implements both List and Queue. The List interface has a method to remove by index. Since this method exists, Java does not autobox to call the other method. Queue has only the remove by object method, so Java does autobox there. Since the number 1 is not in the list, Java does not remove anything for the Queue.
+  =================================================================
+!!! Map m = new HashMap();  // Raw Map, allows different types
+    m.put(123, "456");      // Key is Integer, Value is String
+    m.put("abc", "def");    // Key is String, Value is String
+!!!
+Using raw types can lead to runtime issues (e.g., ClassCastException) because the types are not checked at compile time. It is generally better to use generics to enforce a consistent key and value type for type safety.
+!!!
+------------------------
+
+  48: var map = Map.of(1,2, 3, 6);
+  49: var list = List.copyOf(map.entrySet());
+  50:
+  51: List<Integer> one = List.of(8, 16, 2);
+  52: var copy = List.copyOf(one);
+  53: var copyOfCopy = List.copyOf(copy);
+  54: var thirdCopy = new ArrayList<>(copyOfCopy);
+  55:
+  56: list.replaceAll(x -> x * 2);
+  57: one.replaceAll(x -> x * 2);
+  58: thirdCopy.replaceAll(x -> x * 2);
+  59:
+  60: System.out.println(thirdCopy);
+
+list.replaceAll(x -> x * 2);
+Error: list is created from map.entrySet(), so it's a collection of Map.Entry, not integers. replaceAll can't be applied here because Map.Entry doesn't support multiplication.
+
+one.replaceAll(x -> x * 2);
+Error: one is an immutable list (List.of(...)). Immutable lists can't be modified, so this line will throw an UnsupportedOperationException.
+
+thirdCopy.replaceAll(x -> x * 2);
+Works: thirdCopy is a mutable ArrayList, so it successfully multiplies each element by 2 and replaces them.
+
+Map.of(1, 2, 3, 6) creates a map with two key-value pairs:
+Key 1 = value 2.
+Key 3 = value 6.
+
+map.entrySet() returns a Set<Map.Entry<Integer, Integer>>, representing the key-value pairs in the map. This will look like:
+[1=2, 3=6] (each element is a Map.Entry).
+
+List.copyOf(map.entrySet()) creates an immutable list from the map’s entry set. The resulting list will contain the entries:
+List will look like:
+[1=2, 3=6]
+Each element in the list is a Map.Entry<Integer, Integer> object.
+===================================
+!!!
+public static <T> T identity(T t) {
+        return t;
+    }
+!!!
+===================================
+Which of the answer choices make sense to implement with a lambda?
+
+Comparator<String> comp = (a, b) -> a.compareTo(b);
+list.removeIf(s -> s.isEmpty());
+
+----------------- Comparable interface:
+Not directly suitable for lambdas. Comparable is typically implemented by a class, not passed as a lambda.
+
+----------------- remove method on a Collection:
+This method doesn't take a functional interface; it removes a specific object from the collection.
+
+---------------- removeAll method on a Collection:
+This method takes another collection, not a functional interface, so a lambda isn't applicable.
+------------------------------------------------
+
+map.merge(K key, V value, BiFunction<V, V, V> remappingFunction)
+
+Key: The key to be merged.
+Value: The new value to be merged with the existing value (if present).
+Remapping Function: A function that defines how to merge the old and new values.
+If the key does not exist or its value is null, the method sets the key to the provided value.
+If the key exists and its value is non-null, it applies the remapping function (BiFunction), which takes the old value and new value, and combines them to update the key.
+
+
+map.merge(1, 3, (a, b) -> a + b);
+If 1 already exists with value 10, it adds 10 and 3, updating the value to 13.
+Key Points:
+If the key is missing/null or value of that key is null, it uses the provided value as value to that key and doesnt use the remapping func
+If the key exists, it uses the remapping function to combine old and new values.
+If the value of the key is null in map.merge():
+
+The remapping function is not applied.
+The value is replaced directly by the new value provided in the merge() call.
+
+
+map.put(3, null);   // Key 3 has a null value
+map.merge(3, 3, (a, b) -> a + b);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
