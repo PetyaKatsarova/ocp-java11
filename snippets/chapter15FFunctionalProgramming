@@ -1,0 +1,908 @@
+Supplier<T>: Return type - T, Method name - get(), # of parameters - 0
+Consumer<T>: Return type - void, Method name - accept(T), # of parameters - 1 (T)
+BiConsumer<T, U>: Return type - void, Method name - accept(T, U), # of parameters - 2 (T, U)
+Predicate<T>: Return type - boolean, Method name - test(T), # of parameters - 1 (T)
+BiPredicate<T, U>: Return type - boolean, Method name - test(T, U), # of parameters - 2 (T, U)
+Function<T, R>: Return type - R, Method name - apply(T), # of parameters - 1 (T)
+BiFunction<T, U, R>: Return type - R, Method name - apply(T, U), # of parameters - 2 (T, U)
+UnaryOperator<T>: Return type - T, Method name - apply(T), # of parameters - 1 (T)
+BinaryOperator<T>: Return type - T, Method name - apply(T, T), # of parameters - 2 (T, T)
+
+@FunctionalInterface
+public interface Supplier<T> {  T get(); } // RETURNS T NO PARAMS
+
+@FunctionalInterface
+public interface Consumer<T> { void accept(T t);   // omitted default method }
+
+@FunctionalInterface
+public interface BiConsumer<T, U> {   void accept(T t, U u);   // omitted default method }
+
+@FunctionalInterface
+interface Predicate<T> { boolean test(T t);  // omitted default and static methods }
+
+@FunctionalInterface
+interface BiPredicate<T, U> {  boolean test(T t, U u);  // omitted default methods }
+
+@FunctionalInterface
+interface Function<T, R> {  R apply(T t); } // omitted default and static methods
+
+@FunctionalInterface
+interface BiFunction<T, U, R> {  R apply(T t, U u); }    // omitted default method
+
+ @FunctionalInterface
+ public interface UnaryOperator<T> extends Function<T, T> { T apply(T t); }
+
+ @FunctionalInterface
+ public interface BinaryOperator<T> extends BiFunction<T, T, T> {  T apply(T t1, T t2); // omitted static methods }
+
+ All you need to know is that Runnable and Callable don't take any parameters, with Runnable returning void and Callable returning a generic type.
+ ============================================================================
+                         SUPPLIER: Supplier<T>.get() returns T
+ ========================================================================
+ Supplier<LocalDate> s1 = LocalDate::now;
+ Supplier<LocalDate> s2 = () -> LocalDate.now();
+
+ LocalDate d1 = s1.get();
+ LocalDate d2 = s2.get();
+
+org.example.snippets.Ch15Supplier$$Lambda$20/0x00000008000a0440@13a57a3b when u print:
+Supplier<ArrayList<String>> s13 = ArrayList<String>::new;
+ $$, which means that the class doesn't exist in a class file on the file system. It exists only in memory
+
+ System.out.println(d1);
+ System.out.println(d2);
+ ========================================
+           CONSUMER
+ ==========================================
+ You use a Consumer when you want to do something with a parameter but not return anything. BiConsumer does the same thing except that it takes two parameters. The interfaces are defined as follows:
+
+Consumer<String> c1 = System.out::println;
+Consumer<String> c2 = x -> System.out.println(x);
+ c1.accept("Annie");
+ c2.accept("Annie");
+
+ var map = new HashMap<String, Integer>();
+ BiConsumer<String, Integer> b1 = map::put;
+ BiConsumer<String, Integer> b2 = (k, v) -> map.put(k, v);
+
+ b1.accept("chicken", 7);
+ b2.accept("chick", 1);
+
+ ==========================================================
+ What functional interface would you use in these three situations?
+
+ Returns a String without taking any parameters- Supplier.accept(String s)
+
+ Returns a Boolean and takes a String- Function.apply(String, Boolean)
+ //You might think it is a Predicate<String>. Note that a Predicate returns a boolean primitive and not a Boolean object.
+
+ Returns an Integer and takes two Integers-BiFunction.apply(Integer, Integer, Integer) OR BinaryOperator(Integer) is better answer : more specific
+ BinaryOperator.apply(Integer, Integer)
+ ==================================================================
+ what functional interface would use here:
+ 6: ___Predicate.test___                    <List> ex1 = x -> "".equals(x.get(0));
+ 7: ___Consumer.accept____                  <Long> ex2 = (Long l) -> System.out.println(l);
+ 8: ____BiPredicate.test___                 <String, String> ex3 = (s1, s2) -> false;
+ When you see a boolean returned, think Predicate unless the generics specify a Boolean return type. In this case, there are two parameters, so it is a BiPredicate.
+ ==============================================================
+6: Function<List<String>> ex1 = x -> x.get(0); // DOES NOT COMPILE
+-> Function gets input type and return type: 2 params
+7: UnaryOperator<Long> ex2 = (Long l) -> 3.14; // DOES NOT COMIPLE
+-> returns the same type as it is passed in. The example returns a double rather than a Long, causing the code not to compile.
+8: Predicate ex4 = String::isEmpty;            // DOES NOT COMPILE
+-> takes 1 param:  missing the generic for Predicate. This makes the parameter that was passed an Object rather than a String. The lambda expects a String because it calls a method that exists on String rather than Object.
+===========================================================
+Several of the common functional interfaces provide a number of helpful default methods.
+
+Consumer<T> andThen(Consumer<? super T> after);
+
+<R> Function<T, R> andThen(Function<? super R, ? extends V> after);
+<R> Function<T, R> compose(Function<? super V, ? extends R> before);
+
+Predicate<T> and(Predicate<? super T> other);
+Predicate<T> negate();
+Predicate<T> or(Predicate<? super T> other);
+Predicate<String> brownEggs = egg.and(brown);
+Predicate<String> otherEggs = egg.and(brown.negate());
+===================================================
+
+Consumer<String> c1 = x -> System.out.print("1: " + x);
+Consumer<String> c2 = x -> System.out.print(",2: " + x);
+
+Consumer<String> combined = c1.andThen(c2);
+combined.accept("Annie");              // 1: Annie,2: Annie
+Notice how the same parameter gets passed to both c1 and c2. This shows that the Consumer instances are run in sequence and are independent of each other. By contrast, the compose() method on Function chains functional interfaces. However, it passes along the output of one to the input of another.
+
+Function<Integer, Integer> before = x -> x + 1;
+Function<Integer, Integer> after = x -> x * 2;
+
+Function<Integer, Integer> combined = after.compose(before);
+System.out.println(combined.apply(3));   // 8
+====================================================
+RETURNING AN OPTIONAL
+===============================================
+10: public static Optional<Double> average(int... scores) {
+11:    if (scores.length == 0) return Optional.empty(); !!!!!
+12:    int sum = 0;
+13:    for (int score: scores) sum += score;
+14:    return Optional.of((double) sum / scores.length); !!!!!
+15: }
+System.out.println(average(90, 100)); // Optional[95.0]
+System.out.println(average());        // Optional.empty
+20: Optional<Double> opt = average(90, 100);
+21: if (opt.isPresent()) !!!!!!
+22:    System.out.println(opt.get()); // 95.0
+26: Optional<Double> opt = average();
+27: System.out.println(opt.get()); // NoSuchElementException
+=============================================================
+STREAMS
+====================================================
+the Stream<T> interface, defined in the java.util.stream package.
+11: Stream<String> empty = Stream.empty();          // count = 0
+12: Stream<Integer> singleElement = Stream.of(1);   // count = 1
+13: Stream<Integer> fromArray = Stream.of(1, 2, 3); // count = 3
+
+14: var list = List.of("a", "b", "c");
+15: Stream<String> fromList = list.stream();
+24: var list = List.of("a", "b", "c");
+25: Stream<String> fromListParallel = list.parallelStream();
+--------- INFINITE STREAMS ----------------------
+17: Stream<Double> randoms = Stream.generate(Math::random);
+18: Stream<Integer> oddNumbers = Stream.iterate(1, n -> n + 2);
+Line 17  the program will print random numbers until you kill it. limit() to turn the infinite stream into a finite stream
+The iterate() method takes a seed or starting value as the first parameter. This is the first element that will be part of the stream
+--------------------------------
+19: Stream<Integer> oddNumberUnder100 = Stream.iterate(
+20:    1,                // seed
+21:    n -> n < 100,     // Predicate to specify when done
+22:    n -> n + 2);      // UnaryOperator to get next value
+Stream<Integer> oddNumUnder100 = Stream.iterate(1, n -> n < 100, n -> n + 2); // overload of iterate
+
+You can perform a terminal operation without any intermediate operations but not the other way around.Reductions are a special type of terminal operation where all of the contents of the stream are combined into a single primitive or Object
+-----------------------------------------------------------------
+long count():                                           Does not terminate, reduction: Yes
+Optional<T> min(Comparator<? super T> comparator)       Does not terminate, reduction: Yes
+Optional<T> max(Comparator<? super T> comparator)       -- || ---
+Optional<T> findAny()                                   Terminates
+Optional<T> findFirst()                                 Terminates
+boolean anyMatch(Predicate <? super T> predicate)       Sometimes terminates, returns boolean, reduction: No
+boolean allMatch(Predicate <? super T> predicate)       -- || --
+boolean noneMatch(Predicate <? super T> predicate)      -- || ---
+void forEach(Consumer<? super T> action)                Does not terminate, returns void, reduction: No
+T reduce(T identity, BinaryOperator<T> accumulator)     Combines a stream into a single object. It is a reduction, which means it processes all elements.
+Optional<T> reduce(BinaryOperator<T> accumulator)
+<U> U reduce(U identity, BiFunction<U,? super T,U> accumulator, BinaryOperator<U> combiner)
+reduce():                                                Does not terminate, returns varies, reduction: Yes
+<R> R collect(Supplier<R> supplier, BiConsumer<R, ? super T> accumulator,  BiConsumer<R, R> combiner)
+<R,A> R collect(Collector<? super T, A,R> collector)
+collect():                                              Does not terminate, returns varies, reduction: Yes
+
+-- intermediate            -----------------
+Stream<T> filter(Predicate<? super T> predicate)         Doesnt terminate
+Stream<T> distinct()                                     DoesntTerminate, removes all duplicates
+Stream<T> limit(long maxSize)
+Stream<T> skip(long n)
+<R> Stream<R> map(Function<? super T, ? extends R> mapper)
+Stream<T> sorted()
+Stream<T> sorted(Comparator<? super T> comparator)
+Stream<T> peek(Consumer<? super T> action)
+-----------------------------------------------------------------------------------
+The count() method determines the number of elements in a finite stream. For an infinite stream, it never terminates.The count() method is a reduction because it looks at each element in the stream and returns a single value.
+-------------------------------
+!!! Remember that you can call forEach() directly on a Collection or on a Stream. Don't get confused on the exam when you see both approaches.
+---------------------------------
+!!! you can't use a traditional for loop on a stream.
+Stream<Integer> s = Stream.of(1);
+for (Integer i  : s) {} // DOES NOT COMPILE
+While forEach() sounds like a loop, it is really a terminal operator for streams. Streams cannot be used as the source in a for‐each loop to run because they don't implement the Iterable interface.
+---------------------------------------
+Reduction in streams refers to the process of combining the elements of the stream into a single result.
+Examples of reduction operations are count(), min(), max(), reduce(), and collect().
+These operations typically take a stream of multiple elements and return a single value, such as a sum, average, or concatenation.
+int sum = Stream.of(1, 2, 3, 4).reduce(0, Integer::sum); // Reduction to get the sum of elements
+
+Stream<String> stream = Stream.of("w", "o", "l", "f");
+String word = stream.reduce("", (s, c) -> s + c);
+System.out.println(word); // wolf
+
+Stream<Integer> stream = Stream.of(3, 5, 6);
+System.out.println(stream.reduce(1, (a, b) -> a*b));  // 90
+
+When you don't specify an identity, an Optional is returned because there might not be any data.
+
+BinaryOperator<Integer> op = (a, b) -> a * b;
+Stream<Integer> empty = Stream.empty();
+Stream<Integer> oneElement = Stream.of(3);
+Stream<Integer> threeElements = Stream.of(3, 5, 6);
+
+empty.reduce(op).ifPresent(System.out::println);         // no output
+oneElement.reduce(op).ifPresent(System.out::println);    // 3
+threeElements.reduce(op).ifPresent(System.out::println); // 90
+
+The third method signature is used when we are dealing with different types. It allows Java to create intermediate reductions and then combine them at the end:
+Stream<String> stream = Stream.of("w", "o", "l", "f!");
+int length = stream.reduce(0, (i, s) -> i+s.length(), (a, b) -> a+b);
+System.out.println(length); // 5
+
+<U> U reduce(U identity, BiFunction<U, ? super T, U> accumulator, BinaryOperator<U> combiner), you need both <U> and U for the following reasons:
+
+<U>: Generic Type Declaration
+The <U> at the beginning of the method declares a new generic type that can be used within the method. It means the method can work with any type U, not just a specific one.
+It makes the method flexible enough to work with types that are different from the stream element type T.
+U: Return Type and Parameters
+The first parameter ( 0) is the value for the initializer. If we had an empty stream, this would be the answer. The second parameter is the accumulator. Unlike the accumulators you saw previously, this one handles mixed data types. (integer and string)
+
+The three‐argument reduce() operation is useful when working with parallel streams because it allows the stream to be decomposed and reassembled by separate threads. For example, if we needed to count the length of four 100‐character strings, the first two values and the last two values could be computed independently. The intermediate result (200 + 200) would then be combined into the final value.
+----------------------------------------------------------------
+The collect() method is a special type of reduction called a mutable reduction. !!! It is more efficient than a regular reduction because we use the same mutable object while accumulating. !! Common mutable objects include StringBuilder and ArrayList.it lets us get data out of streams and into another form.
+<R> R collect(Supplier<R> supplier, BiConsumer<R, ? super T> accumulator,  BiConsumer<R, R> combiner)
+<R,A> R collect(Collector<? super T, A,R> collector)
+
+Even though the stream may be processed sequentially, the collect method requires a combiner in case the stream is run in parallel:
+Stream<String> stream = Stream.of("w", "o", "l", "f");
+StringBuilder word = stream.collect( StringBuilder::new, StringBuilder::append, StringBuilder::append);
+In a sequential stream, you could theoretically just use the accumulator, but the combiner is still part of the collect() method signature and necessary for stream compatibility with parallelism.
+In a parallel stream, multiple StringBuilder instances may be created and worked on simultaneously. The combiner is essential for merging these instances into a single final result.
+
+--------- !! NB !! ----------
+a stream can only be consumed once. Once a terminal operation (such as collect(), forEach(), or reduce()) is called on a stream, the stream is considered "consumed" and can no longer be reused. but can do:
+List<String> wordList = Arrays.asList("w", "o", "l", "f");
+TreeSet<String> set1 = wordList.stream().collect(Collectors.toCollection(TreeSet::new));
+TreeSet<String> set2 = wordList.stream().collect(Collectors.toCollection(TreeSet::new)); // Works because list can be reused
+
+-----------------------------------
+Stream<String> stream = Stream.of("w", "o", "l", "f");
+Set<String> set = stream.collect(Collectors.toSet()); // no guarantee if HashSet or TreeSet
+System.out.println(set); // [f, w, l, o]
+You might get different output for this last one since toSet() makes no guarantees as to which implementation of Set you'll get. It is likely to be a HashSet, but you shouldn't expect or rely on that.
+------------------------
+!!
+Unlike a terminal operation, an intermediate operation produces a stream as its result.
+An intermediate operation can also deal with an infinite stream simply by returning another infinite stream.
+!!
+---------------------------------------------
+Stream<String> s = Stream.of("monkey", "gorilla", "bonobo");
+s.filter(x -> x.startsWith("m")).forEach(System.out::print); // monkey
+----------------------------
+The distinct() method returns a stream with duplicate values removed. The duplicates do not need to be adjacent to be removed. Java calls equals() to determine whether the objects are the same.
+Stream<T> distinct()
+Stream<String> s = Stream.of("duck", "duck", "duck", "goose");
+s.distinct().forEach(System.out::print); // duckgoose
+-----------------------------------
+The limit() and skip() methods can make a Stream smaller, or they could make a finite stream out of an infinite stream. The method signatures are shown here:
+Stream<T> limit(long maxSize)
+Stream<T> skip(long n)
+--------------------------------------------
+Stream<Integer> s = Stream.iterate(1, n -> n + 1); // start from 1, count num + 1, infinate
+s.skip(5).limit(2).forEach(System.out::print); // 67  // skip 5 els, start from 6, limit to next 2 els
+--------------------------------------------------------
+The map() method creates a one‐to‐one mapping from the elements in the stream to the elements of the next step in the stream. The method signature is as follows:
+<R> Stream<R> map(Function<? super T, ? extends R> mapper)
+----------------------------
+!! The map() method on streams is for transforming data. Don't confuse it with the Map interface, which maps keys to values. !!
+
+Stream<String> s = Stream.of("monkey", "gorilla", "bonobo");
+s.map(String::length).forEach(System.out::print); // 676
+Remember that String::length is shorthand for the lambda x ‐> x.length(), which clearly shows it is a function that turns a String into an Integer.
+------------------------------------------------------------
+
+============= FLATMAP ==========================
+The flatMap() method takes each element in the stream and makes any elements it contains top‐level elements in a single stream. This is helpful when you want to remove empty elements from a stream or you want to combine a stream of lists. We are showing you the method signature for consistency with the other methods, just so you don't think we are hiding anything. You aren't expected to be able to read this:
+
+<R> Stream<R> flatMap( Function<? super T, ? extends Stream<? extends R>> mapper)
+This gibberish basically says that it returns a Stream of the type that the function contains at a lower level.
+
+What you should understand is the example. This gets all of the animals into the same level along with getting rid of the empty list.
+
+List<String> zero = List.of();
+var one = List.of("Bonobo");
+var two = List.of("Mama Gorilla", "Baby Gorilla");
+Stream<List<String>> animals = Stream.of(zero, one, two);
+animals.flatMap(m -> m.stream()).forEach(System.out::println);
+Here's the output:
+Bonobo
+Mama Gorilla
+Baby Gorilla
+Each list (m) is converted into a stream (m.stream()). Then, flatMap() combines all these streams into one continuous stream of strings, allowing forEach() to print them one by one.
+
+Essentially, flatMap() merges nested structures into a single sequence.
+----------------------------------------
+The sorted() method returns a stream with the elements sorted. Just like sorting arrays, Java uses natural ordering unless we specify a comparator. The method signatures are these:
+
+Stream<T> sorted()
+Stream<T> sorted(Comparator<? super T> comparator)
+Calling the first signature uses the default sort order.
+Stream.of("brown-", "bear-").sorted().forEach(System.out::print); // bear-brown-
+
+Stream.of("brown bear-", "grizzly-").sorted(Comparator.reverseOrder()).forEach(System.out::print); // grizzly-brown bear-
+----------------------------------------------------------------
+s.sorted(Comparator::reverseOrder); // DOES NOT COMPILE
+Take a look at the method signatures again. Comparator is a functional interface. This means that we can use method references or lambdas to implement it. The Comparator interface implements one method that takes two String parameters and returns an int. However, Comparator::reverseOrder doesn't do that. It is a reference to a function that takes zero parameters and returns a Comparator. This is not compatible with the interface. This means that we have to use a method and not a method reference. We bring this up to remind you that you really do need to know method references well.
+---------------------------------------------
+The peek() method is our final intermediate operation. It is useful for debugging because it allows us to perform a stream operation without actually changing the stream. The method signature is as follows:
+Stream<T> peek(Consumer<? super T> action)
+
+!! NB !!
+You might notice the intermediate peek() operation takes the same argument as the terminal forEach() operation Think of peek() as an intermediate version of forEach() that returns the original stream back to you.
+you saw that peek() looks only at the first element when working with a Queue. In a stream, peek() looks at each element that goes through that part of the stream pipeline.
+-----------------------------
+    var numbers = new ArrayList<>();
+    var letters = new ArrayList<>();
+    numbers.add(1);
+    letters.add('a');
+
+    Stream<List<?>> stream = Stream.of(numbers, letters);
+    stream.map(List::size).forEach(System.out::print); // 11
+
+    Stream<List<?>> bad = Stream.of(numbers, letters);
+    bad.peek(x -> x.remove(0)) // Java doesn't prevent us from writing bad peek code.
+       .map(List::size)
+       .forEach(System.out::print); // 00
+This example is bad because peek() is modifying the data structure that is used in the stream, which causes the result of the stream pipeline to be different than if the peek wasn't present.
+-------------------------------------------------
+Stream.generate(() -> "Elsa")
+   .filter(n -> n.length() == 4)
+   .sorted()
+   .limit(2)
+   .forEach(System.out::println);
+It actually hangs until you kill the program or it throws an exception after running out of memory. The foreman has instructed sorted() to wait until everything to sort is present. That never happens because there is an infinite stream.
+
+Stream.generate(() -> "Elsa")
+   .filter(n -> n.length() == 4)
+   .limit(2)
+   .sorted()
+   .forEach(System.out::println);
+This one prints Elsa twice. The filter lets elements through, and limit() stops the earlier operations after two elements. Now sorted() can sort because we have a finite list.
+
+Stream.generate(() -> "Olaf Lazisson")
+   .filter(n -> n.length() == 4)
+   .limit(2)
+   .sorted()
+   .forEach(System.out::println);
+This one hangs as well until we kill the program. The filter doesn't allow anything through, so limit() never sees two elements.
+==================================================================
+Stream<Integer> stream = Stream.of(1, 2, 3);
+System.out.println(stream.reduce(0, (s, n) -> s + n));  // 6
+
+Stream<Integer> stream = Stream.of(1, 2, 3); // same as above
+System.out.println(stream.mapToInt(x -> x).sum());  // 6
+
+===================
+streams:::: Use streams for clarity and when dealing with larger datasets or complex transformations.
+            Use normal loops when performance is critical, especially for small collections or simple tasks.
+===========================================================
+                     PRIMITIVE STREAMS
+========================================================
+IntStream: Used for the primitive types int, short, byte, and char
+
+LongStream: Used for the primitive type long
+
+DoubleStream: Used for the primitive types double and float
+-----------------------------------------------------------
+ With a capital S or in code, Stream is the name of a class that contains an Object type. With a lowercase s, a stream is a concept that might be a Stream, DoubleStream, IntStream, or LongStream.
+ ========================================================
+ UNIQUE METHODS FOR PRIMITIVE STREAMS:
+ =======================================================
+
+OptionalDouble average() - IntStream, LongStream, DoubleStream: The arithmetic mean of the elements
+Stream<T> boxed() - IntStream, LongStream, DoubleStream: A Stream<T> where T is the wrapper class associated with the primitive value
+OptionalInt max() - IntStream: The maximum element of the stream
+OptionalLong max() - LongStream
+OptionalDouble max() - DoubleStream
+OptionalInt min() - IntStream: The minimum element of the stream
+OptionalLong min() - LongStream
+OptionalDouble min() - DoubleStream
+IntStream range(int a, int b) - IntStream: Returns a primitive stream from a (inclusive) to b (exclusive)
+LongStream range(long a, long b) - LongStream
+IntStream rangeClosed(int a, int b) - IntStream: Returns a primitive stream from a (inclusive) to b (inclusive)
+LongStream rangeClosed(long a, long b) - LongStream
+int sum() - IntStream: Returns the sum of the elements in the stream
+long sum() - LongStream
+double sum() - DoubleStream
+IntSummaryStatistics summaryStatistics() - IntStream: Returns an object containing numerous stream statistics such as the average, min, max, etc.
+LongSummaryStatistics summaryStatistics() - LongStream
+DoubleSummaryStatistics summaryStatistics() - DoubleStream
+=======================================
+IntStream count = IntStream.iterate(1, n -> n+1).limit(5);
+count.forEach(System.out::println);
+// below code is the same s abv
+IntStream range = IntStream.range(1, 6);
+range.forEach(System.out::println);
+----------------------------------------------
+Another way to create a primitive stream is by mapping from another stream type
+
+Source stream class - To create Stream - To create DoubleStream - To create IntStream - To create LongStream
+Stream<T>                     - map() -        mapToDouble() -        mapToInt() -         mapToLong()
+DoubleStream - mapToObj() - map() - mapToInt() - mapToLong()
+IntStream - mapToObj() - mapToDouble() - map() - mapToLong()
+LongStream - mapToObj() - mapToDouble() - mapToInt() - map()
+------------------------------------------
+Stream<String> objStream = Stream.of("penguin", "fish");
+IntStream intStream = objStream.mapToInt(s -> s.length());
+
+Source stream class - To create Stream - To create DoubleStream - To create IntStream - To create LongStream
+Stream<T> -              Function<T,R> -   ToDoubleFunction<T> -      ToIntFunction<T> - ToLongFunction<T>
+DoubleStream -           DoubleFunction<R> - DoubleUnary Operator - DoubleToInt Function - DoubleToLongFunction
+IntStream -              IntFunction<R> - IntToDouble Function - IntUnary Operator - IntToLongFunction
+LongStream -             LongFunction<R> - LongToDouble Function - LongToInt Function - LongUnaryOperator
+------------------------------------------------------------------------
+you can create a Stream from a primitive stream. These methods show two ways of accomplishing this:
+private static Stream<Integer> mapping(IntStream stream) {  return stream.mapToObj(x -> x);}
+private static Stream<Integer> boxing(IntStream stream) { return stream.boxed();}
+
+.boxed() converts primitive streams (IntStream, LongStream, DoubleStream) to their corresponding wrapper class stream (Stream<Integer>, Stream<Long>, Stream<Double>).
+Useful for working with collections, generic methods, or APIs that require objects.
+Introduces some performance overhead, so it should be used only when necessary.
+----------------------------------------------------------------
+ overhead refers to additional processing or resources required by a system, which do not directly contribute to the desired outcome but are necessary for certain operations to run. These extra costs could involve time (processing delays), memory, bandwidth, or energy usage
+-----------------------------
+
+The difference is that OptionalDouble is for a primitive and Optional<Double> is for the Double wrapper class. Working with the primitive optional class looks similar to working with the Optional class itself:
+
+var stream = IntStream.rangeClosed(1,10);
+OptionalDouble optional = stream.average();
+optional.ifPresent(System.out::println);                  // 5.5
+System.out.println(optional.getAsDouble());               // 5.5
+System.out.println(optional.orElseGet(() -> Double.NaN)); // 5.5
+-------------------------------------
+                             	OptionalDouble	OptionalInt	OptionalLong
+Getting as a primitive       	getAsDouble()	getAsInt()	getAsLong()
+orElseGet() parameter type   	DoubleSupplier	IntSupplier	LongSupplier
+Return type of max() and min()	OptionalDouble	OptionalInt	OptionalLong
+Return type of sum()	double	int	long
+Return type of average()    	OptionalDouble	OptionalDouble	OptionalDouble
+------------------------------------------
+
+5: LongStream longs = LongStream.of(5, 10);
+6: long sum = longs.sum();
+7: System.out.println(sum);     // 15
+8: DoubleStream doubles = DoubleStream.generate(() -> Math.PI);
+9: OptionalDouble min = doubles.min(); // runs infinitely
+
+Line 5 creates a stream of long primitives with two elements. Line 6 shows that we don't use an optional to calculate a sum. Line 8 creates an infinite stream of double primitives. Line 9 is there to remind you that a question about code that runs infinitely can appear with primitive streams as well.
+----------------------------------------------------------
+=========== SUMMARIZING STATISTICS ====================
+private static int max(IntStream ints) {
+   OptionalInt optional = ints.max();
+   return optional.orElseThrow(RuntimeException::new);
+}
+
+private static int range(IntStream ints) {
+   IntSummaryStatistics stats = ints.summaryStatistics();
+   System.out.println(stats);   //IntSummaryStatistics{count=0, sum=0, min=2147483647, average=0,000000, max=-2147483648}
+   if (stats.getCount() == 0) throw new RuntimeException();
+   return stats.getMax()-stats.getMin();
+}
+-----------------------------------------------------
+
+BooleanSupplier is a separate type: boolean getAsBoolean()
+It works just as you've come to expect from functional interfaces. Here's an example:
+
+12: BooleanSupplier b1 = () -> true;
+13: BooleanSupplier b2 = () -> Math.random()> .5;
+14: System.out.println(b1.getAsBoolean());  // true
+15: System.out.println(b2.getAsBoolean());  // false
+
+| Functional interfaces                | # parameters       | Return type      | Single abstract method      |
+|--------------------------------------|--------------------|------------------|-----------------------------|
+| DoubleSupplier, IntSupplier, LongSupplier | 0                  | double, int, long| getAsDouble, getAsInt, getAsLong |
+| DoubleConsumer, IntConsumer, LongConsumer | 1 (double, int, long) | void             | accept                      |
+| DoublePredicate, IntPredicate, LongPredicate | 1 (double, int, long) | boolean          | test                        |
+| DoubleFunction<R>, IntFunction<R>, LongFunction<R> | 1 (double, int, long) | R                | apply                       |
+| DoubleUnaryOperator, IntUnaryOperator, LongUnaryOperator | 1 (double, int, long) | double, int, long | applyAsDouble, applyAsInt, applyAsLong |
+| DoubleBinaryOperator, IntBinaryOperator, LongBinaryOperator | 2 (double, int, long) | double, int, long | applyAsDouble, applyAsInt, applyAsLong |
+
+Generics are gone from some of the interfaces, and instead the type name tells us what primitive type is involved. In other cases, such as IntFunction, only the return type generic is needed because we're converting a primitive int into an object.
+The single abstract method is often renamed when a primitive type is returned.
+
+var d = 1.0;
+______________ f1 = x -> 1;
+f1.applyAsInt(d);
+When you see a question like this, look for clues. You can see that the functional interface in question takes a double parameter and returns an int. You can also see that it has a single abstract method named applyAsInt. The DoubleToIntFunction and ToIntFunction meet all three of those criteria.
+
+| Functional interfaces                            | # parameters     | Return type        | Single abstract method       |
+|--------------------------------------------------|------------------|--------------------|------------------------------|
+| ToDoubleFunction<T>, ToIntFunction<T>, ToLongFunction<T> | 1 (T)            | double, int, long  | applyAsDouble, applyAsInt, applyAsLong |
+| ToDoubleBiFunction<T, U>, ToIntBiFunction<T, U>, ToLongBiFunction<T, U> | 2 (T, U) | double, int, long  | applyAsDouble, applyAsInt, applyAsLong |
+| DoubleToIntFunction, DoubleToLongFunction        | 1 (double)       | int, long          | applyAsInt, applyAsLong       |
+| IntToDoubleFunction, IntToLongFunction           | 1 (int)          | double, long       | applyAsDouble, applyAsLong    |
+| LongToDoubleFunction, LongToIntFunction          | 1 (long)         | double, int        | applyAsDouble, applyAsInt     |
+| ObjDoubleConsumer<T>, ObjIntConsumer<T>, ObjLongConsumer<T> | 2 (T, double), 2 (T, int), 2 (T, long) | void | accept                      |
+
+=========================================================
+ADVANCED STREAM PIPELINE
+========================================================
+If you use List.of() or List.copyOf(), the list is immutable, and any attempt to modify it (like using removeIf()) will throw an UnsupportedOperationException.
+In the case of mutable lists like ArrayList, however, you can modify the list, including using removeIf()
+-- MUTABLE --
+List<String> list = new ArrayList<>(List.of("A", "B", "C"));
+list.removeIf(s -> s.equals("A"));  // Works, removes "A"
+System.out.println(list);  // Output: [B, C]
+
+-------------------------------------
+
+        var cats = new ArrayList<String>();
+        cats.add("Annie");
+        cats.add("Ripley");
+        var stream = cats.stream();
+        cats.add("KC");
+        System.out.println(stream.count()); // 3
+
+Stream Characteristics: The Stream created by cats.stream() is a non-terminal operation, meaning it does not consume or process the data immediately. Streams in Java are lazy, which means that no elements are processed until a terminal operation (like count()) is called.
+The count() method is a terminal operation that triggers the processing of the stream. At this point, the stream sees all 3 elements, including the element added after the stream was created.
+------------------------------------------------------------------
+You might have noticed by now that most functional interfaces do not declare checked exception
+
+A checked exception in Java is an exception that must be either caught or declared in the method signature using the !!! throws !!! keyword. These exceptions are checked by the Java compiler at compile time, ensuring that they are handled properly in the code. If you don't handle a checked exception, the code will fail to compile.
+-----------------------------------------
+
+!!! The issue you're encountering is because you're declaring the ExceptionCaseStudy class as an inner class, and it contains a static method (create()). In Java, non-static inner classes cannot have static members or methods unless they are constants. !!!
+------------------------------------------
+
+ public void bad() throws IOException {
+       Supplier<List<String>> s = ExceptionCaseStudy::create; // DOES NOT COMPILE
+    }
+//    unhandled exception type IOException
+to go around it:
+
+    public void ugly() {
+       Supplier<List<String>> s = () -> {
+          try {
+             return ExceptionCaseStudy.create();
+          } catch (IOException e) {
+             throw new RuntimeException(e);
+          }
+       };
+    }
+
+    or opt. 2:
+      private static List<String> createSafe() {
+           try {
+              return ExceptionCaseStudy.create();
+           } catch (IOException e) {
+              throw new RuntimeException(e);
+           } }
+now compiles:   public void wrapped() {
+                     Supplier<List<String>> s2 = ExceptionCaseStudy::createSafe;
+                  }
+------------------------------------------------
+These collectors are available via static methods on the Collectors interface.
+
+| Collector                                       | Description                                                               | Return value when passed to collect                         |
+|-------------------------------------------------|---------------------------------------------------------------------------|-------------------------------------------------------------|
+| averagingDouble(ToDoubleFunction f)             | Calculates the average for our three core primitive types                 | Double                                                      |
+| averagingInt(ToIntFunction f)                   |                                                                           | Double                                                      |
+| averagingLong(ToLongFunction f)                 |                                                                           | Double                                                      |
+| counting()                                      | Counts the number of elements                                             | Long                                                        |
+| groupingBy(Function f)                          | Creates a map grouping by the specified function                          | Map<K, List<T>>                                             |
+| groupingBy(Function f, Collector dc)            | Creates a map grouping by the specified function with downstream collector| Map<K, List<T>>                                             |
+| groupingBy(Function f, Supplier s, Collector dc)| Creates a map grouping by function, map supplier, and downstream collector| Map<K, List<T>>                                             |
+| joining(CharSequence cs)                        | Creates a single String using cs as a delimiter                           | String                                                      |
+| maxBy(Comparator c)                             | Finds the largest element                                                 | Optional<T>                                                 |
+| minBy(Comparator c)                             | Finds the smallest element                                                | Optional<T>                                                 |
+| mapping(Function f, Collector dc)               | Adds another level of collectors                                          | Collector                                                   |
+| partitioningBy(Predicate p)                     | Creates a map grouping by the specified predicate                         | Map<Boolean, List<T>>                                       |
+| partitioningBy(Predicate p, Collector dc)       | Creates a map grouping by predicate with downstream collector             | Map<Boolean, List<T>>                                       |
+| summarizingDouble(ToDoubleFunction f)           | Calculates average, min, max, etc., for doubles                           | DoubleSummaryStatistics                                     |
+| summarizingInt(ToIntFunction f)                 | Calculates average, min, max, etc., for ints                              | IntSummaryStatistics                                        |
+| summarizingLong(ToLongFunction f)               | Calculates average, min, max, etc., for longs                             | LongSummaryStatistics                                       |
+| summingDouble(ToDoubleFunction f)               | Calculates the sum for doubles                                            | Double                                                      |
+| summingInt(ToIntFunction f)                     | Calculates the sum for ints                                               | Integer                                                     |
+| summingLong(ToLongFunction f)                   | Calculates the sum for longs                                              | Long                                                        |
+| toList()                                        | Creates a list                                                            | List                                                        |
+| toSet()                                         | Creates a set                                                             | Set                                                         |
+| toCollection(Supplier s)                        | Creates a collection of the specified type                                | Collection                                                  |
+| toMap(Function k, Function v)                   | Creates a map with the specified key-value mapping                        | Map<K, V>                                                   |
+| toMap(Function k, Function v, BinaryOperator m) | Creates a map with key-value mapping and merge function                   | Map<K, V>                                                   |
+| toMap(Function k, Function v, BinaryOperator m, Supplier s) | Creates a map with key-value mapping, merge function, and map supplier | Map<K, V>                                                   |
+-------------------------------------
+Often, you'll find yourself interacting with code that was written without streams. This means that it will expect a Collection type rather than a Stream type. No problem. You can still express yourself using a Stream and then convert to a Collection at the end, for example:
+
+var ohMy = Stream.of("lions", "tigers", "bears");
+TreeSet<String> result = ohMy
+   .filter(s -> s.startsWith("t"))
+   .collect(Collectors.toCollection(TreeSet::new));
+System.out.println(result); // [tigers]
+-------------------------------------------------------------
+!! Note that the function you call in groupingBy() cannot return null. It does not allow null keys.
+ Map<Integer, List<String>> map5 = Stream.of("lions", "tigers", "bears").collect( Collectors.groupingBy(String::length));
+ System.out.println(map5);    // {5=[lions, bears], 6=[tigers]}
+The groupingBy() collector tells collect() that it should group all of the elements of the stream into a Map. The function determines the keys in the Map. Each value in the Map is a List of all entries that match that key.
+
+ pass a downstream collector. This is a second collector that does something special with the values.
+ Suppose that we don't want a List as the value in the map and prefer a Set instead.
+Map<Integer, Set<String>> map = Stream.of("lions", "tigers", "bears").collect(
+   Collectors.groupingBy(
+      String::length,
+      Collectors.toSet()));
+System.out.println(map);    // {5=[lions, bears], 6=[tigers]}
+-----------------------------------------------------
+Partitioning is a special case of grouping. With partitioning, there are only two possible groups—true and false. Partitioning is like splitting a list into two parts.
+Map<Boolean, List<String>> map = Stream.of("lions", "tigers", "bears").collect(
+   Collectors.partitioningBy(s -> s.length() <= 5));
+System.out.println(map);    // {false=[tigers], true=[lions, bears]}
+-----------------------------------
+counting()  Counts the number of elements  Long
+Map<Integer, Long> map = Stream.of("lions", "tigers", "bears").collect(
+   Collectors.groupingBy(
+      String::length,
+      Collectors.counting()));
+System.out.println(map);    // {5=2, 6=1}
+--------------
+var ohMy = Stream.of("lions", "tigers", "bears");
+var map = ohMy.collect(groupingBy(String::length,
+   mapping(s -> s.charAt(0), minBy((a, b) -> a -b))));
+System.out.println(map);    // {5=Optional[b], 6=Optional[t]}
+
+   is same as:
+
+var ohMy = Stream.of("lions", "tigers", "bears");
+Map<Integer, Optional<Character>> map = ohMy.collect(
+   Collectors.groupingBy(
+      String::length,
+      Collectors.mapping(
+         s -> s.charAt(0),
+         Collectors.minBy((a, b) -> a -b))));
+System.out.println(map);    // {5=Optional[b], 6=Optional[t]}
+----------------------------------------------------
+SUMMARY
+===========================================
+Summary
+A functional interface has a single abstract method. You must know the functional interfaces.
+
+Supplier<T> with method: T get()
+
+Consumer<T> with method: void accept(T t)
+
+BiConsumer<T, U> with method: void accept(T t, U u)
+
+Predicate<T> with method: boolean test(T t)
+
+BiPredicate<T, U> with method: boolean test(T t, U u)
+
+Function<T, R> with method: R apply(T t)
+
+BiFunction<T, U, R> with method: R apply(T t, U u)
+
+UnaryOperator<T> with method: T apply(T t)
+
+BinaryOperator<T> with method: T apply(T t1, T t2)
+
+An Optional<T> can be empty or store a value. You can check whether it contains a value with isPresent() and get() the value inside. You can return a different value with orElse(T t) or throw an exception with orElseThrow(). There are even three methods that take functional interfaces as parameters: ifPresent(Consumer c), orElseGet(Supplier s), and orElseThrow(Supplier s). There are three optional types for primitives: OptionalDouble, OptionalInt, and OptionalLong. These have the methods getAsDouble(), getAsInt(), and getAsLong(), respectively.
+
+A stream pipeline has three parts. The source is required, and it creates the data in the stream. There can be zero or more intermediate operations, which aren't executed until the terminal operation runs. The first stream class we covered was Stream<T>, which takes a generic argument T. The Stream<T> class includes many useful intermediate operations including filter(), map(), flatMap(), and sorted(). Examples of terminal operations include allMatch(), count(), and forEach().
+
+Besides the Stream<T> class, there are three primitive streams: DoubleStream, IntStream, and LongStream. In addition to the usual Stream<T> methods, IntStream and LongStream have range() and rangeClosed(). The call range(1, 10) on IntStream and LongStream creates a stream of the primitives from 1 to 9. By contrast, rangeClosed(1, 10) creates a stream of the primitives from 1 to 10. The primitive streams have math operations including average(), max(), and sum(). They also have summaryStatistics() to get many statistics in one call. There are also functional interfaces specific to streams. Except for BooleanSupplier, they are all for double, int, and long primitives as well.
+
+You can use a Collector to transform a stream into a traditional collection. You can even group fields to create a complex map in one line. Partitioning works the same way as grouping, except that the keys are always true and false. A partitioned map always has two keys even if the value is empty for the key.
+
+You should review the tables in the chapter. While there's a lot of tables, many share common patterns, making it easier to remember them. You absolutely must memorize Table 15.1. You should memorize Table 15.8 and Table 15.9 but be able to spot incompatibilities, such as type differences, if you can't memorize these two. Finally, remember that streams are lazily evaluated. They take lambdas or method references as parameters, which execute later when the method is run.
+================== TEST Q ==================================================
+Predicate<String> predicate = s -> s.startsWith("g");
+    var stream1 = Stream.generate(() -> "growl!");
+    var stream2 = Stream.generate(() -> "growl!");
+    var b1 = stream1.anyMatch(predicate);
+    var b2 = stream2.allMatch(predicate);
+    System.out.println(b1 + " " + b2);
+
+    Both streams created in this code snippet are infinite streams. The variable b1 is set to true since anyMatch() terminates. Even though the stream is infinite, Java finds a match on the first element and stops looking. However, when allMatch() runs, it needs to keep going until the end of the stream since it keeps finding matches. Since all elements continue to match, the program hangs.
+    -----------------------------------------------
+ Predicate<String> predicate = s -> s.length()> 3;
+    var stream = Stream.iterate("-",
+       s -> ! s.isEmpty(), (s) -> s + s);
+    var b1 = stream.noneMatch(predicate);
+    var b2 = stream.anyMatch(predicate);
+    System.out.println(b1 + " " + b2);
+
+    E. An infinite stream is generated where each element is twice as long as the previous one. While this code uses the three-parameter iterate() method, the condition is never false. The variable b1 is set to false because Java finds an element that matches when it gets to the element of length 4. However, the next line tries to operate on the same stream. Since streams can be used only once, this throws an exception that the “stream has already been operated upon or closed.” If two different streams were used, the result would be option B.
+    -----------------------------------
+     var s = Stream.generate(() -> "meow");
+        var match = s._________________(String::isEmpty);
+        System.out.println(match);
+
+    findAny and FindFirst do not compile because these methods do not take a Predicate parameter and do not return a boolean. anyMatch and noneMatch are incorrect. While the code compiles, it runs infinitely. The stream has no way to know that a match won't show up later. allMatch is correct because it is safe to return false as soon as one element passes through the stream that doesn't match.
+-------------------------------------------
+We have a method that returns a sorted list without changing the original. Which of the following can replace the method implementation to do the same with streams?
+  private static List<String> sort(List<String> list) {
+       var copy = new ArrayList<String>(list);
+       Collections.sort(copy, (a, b) -> b.compareTo(a));
+       return copy;
+-------------------------
+!!!
+The average() method returns an OptionalDouble since averages of any type can result in a fraction. The findAny() method returns an OptionalInt because there might not be any elements to find.The sum() method returns an int rather than an OptionalInt because the sum of an empty list is zero.
+!!!
+-------------------------------------------
+print the string 12345:
+Stream.iterate(1, x -> x++)
+       .limit(5).map(x -> x)
+       .collect(Collectors.joining());
+
+b.Change map(x ‐> x) to map(x ‐> "" + x).
+c. Change x ‐> x++ to x ‐> ++x
+e. Wrap the entire line in a System.out.print statement
+
+Option causes the output to be 11111. Since the post-increment operator is used, the stream contains an infinite number of the character 1.
+------------------------------------------------------
+List<Integer> x1 = List.of(1, 2, 3);
+    List<Integer> x2 = List.of(4, 5, 6);
+    List<Integer> x3 = List.of();
+    Stream.of(x1, x2, x3).map(x -> x + 1)
+       .flatMap(x -> x.stream())
+       .forEach(System.out::print);
+   The code does not compile.
+ If the map() and flatMap() calls were reversed: prints 234567.
+  the Stream created from the source is of type Stream<List>. Trying to use the addition operator (+) on a List is not supported in Java
+  --------------------------------------------
+   4: Stream<Integer> s = Stream.of(1);
+      5: IntStream is = s.boxed();
+      6: DoubleStream ds = s.mapToDouble(x -> x);
+      7: Stream<Integer> s2 = ds.mapToInt(x -> x);
+      8: s2.forEach(System.out::print);
+
+Line 5 does not compile because boxed() is available only on primitive streams like IntStream, not Stream<Integer>.
+Line 6 converts to a double primitive, which works since Integer can be unboxed to a value that can be implicitly cast to a double. Line 7 does not compile for two reasons. First, converting from a double to an int would require an explicit cast. Also, mapToInt() returns an IntStream so the data type of s3 is incorrect. The rest of the lines compile without issue. IntStream s2 = ds.mapToInt(x -> (int) x);
+-----------------------------------------------
+Primitives are not allowed as generics, Map<boolean, List<String>>
+-----------------------------------------------------------------
+
+ 20: Predicate<String> empty = String::isEmpty;
+    21: Predicate<String> notEmpty = empty.negate();
+    22:
+    23: var result = Stream.generate(() -> "")
+    24:    .limit(10)
+    25:    .filter(notEmpty)
+    26:    .collect(Collectors.groupingBy(k -> k))
+    27:    .entrySet()
+    28:    .stream()
+    29:    .map(Entry::getValue)
+    30:    .flatMap(Collection::stream)
+    31:    .collect(Collectors.partitioningBy(notEmpty));
+    32: System.out.println(result);
+
+    compiles: The pipeline preserves only nonempty elements on line 25. Since there aren't any of those, the pipeline is empty.
+outputs: It outputs: {false=[], true=[]}
+If we changed line 31 from partitioningBy(notEmpty) to groupingBy(n ‐> n), it would output: {}
+!!! NB
+The partitioningBy() operation always returns a map with two Boolean keys, even if there are no corresponding values
+!!!
+--------------------------------------------------
+!!!
+UnaryOperator<Integer>, which takes one parameter and returns a value of the same type.
+ UnaryOperator<Integer> u = x -> x * x;
+ !!!!! UnaryOperator actually extends Function
+!!!!
+ Notice that other options don't even compile because they have the wrong number of generic types for the functional interface provided. You should know that a BiFunction<T,U,R> takes three generic arguments, a BinaryOperator<T> takes one generic argument, and a Function<T,R> takes two generic arguments.
+ BiFunction<Integer> f = x ‐> x*x; // BiF<T,U,R>
+ BiFunction<Integer, Integer> f = x ‐> x*x;
+
+ BinaryOperator<Integer, Integer> f = x ‐> x*x; // BOp<T>
+ Function<Integer> f = x ‐> x*x; // F<T,R>
+ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ -----------------------------------
+ var s = DoubleStream.of(1.2, 2.4);
+    s.peek(System.out::println).filter(x -> x> 2).count();
+
+The terminal operation is count()
+ the result of the stream pipeline isn't stored in a variable or printed, and it is ignored.
+ -----------------------------------------------
+Function<Integer, Integer> s2 = a -> a + 4;
+    Function<Integer, Integer> t = a -> a * 3;
+    Function<Integer, Integer> c = s2.compose(t);
+    System.out.println(c.apply(1));
+
+    Function<Integer, Integer> c = s.compose(t);
+    This line creates a new function c by composing s2 and t. When using compose, the function t is applied first, and then the result of t is passed to the function s2.
+    Mathematically, c(a) = s2(t(a)) = s2(a * 3) = (a * 3) + 4.
+    -------------------------------
+Which of the following functional interfaces contain an abstract method that returns a primitive value? (Choose all that apply.)
+---
+A.BooleanSupplier
+
+CharSupplier
+
+C.DoubleSupplier
+
+FloatSupplier
+
+E.IntSupplier
+
+StringSupplier
+A, C, E. Java includes support for three primitive streams, along with numerous functional interfaces to go with them: int, double, and long.
+There is one exception to this rule. While there is no BooleanStream class, there is a BooleanSupplier functional interface, making option A correct. Java does not include primitive streams or related functional interfaces for other numeric data types, making options B and D incorrect. Option F is incorrect because String is not a primitive, but an object. Only primitives have custom suppliers.
+-------------------------------
+Both lists and streams have forEach() methods
+-------------------------
+ IntStream.range(1, 6)
+       .mapToObj(i -> i)
+       .forEach(System.out::println); works
+----------------------------------------------
+cdef
+Which of the following throw an exception when an Optional is empty?
+C. opt.orElseThrow(); // throw a NoSuchElementException.
+E. opt.orElseThrow(RuntimeException::new);
+F. opt.get(); //throw a NoSuchElementException.
+
+opt.get("") not compile as the get() method does not take a parameter.
+
+opt.orElseThrow(() ‐> throw new Exception()) looks correct but will compile only if the throw is removed
+Remember, the orElseThrow() should get a lambda expression or method reference that returns an exception, not one that throws an exception.
+----------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

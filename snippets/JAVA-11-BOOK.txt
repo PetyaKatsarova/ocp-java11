@@ -7072,6 +7072,13 @@ abceException in thread "main" java.lang.RuntimeException: 3
   20:    return 30;
   21: }
 // OUTPUT IS 30 !!!
+--------------------
+CORRECT QS: 4, 7
+
+abcd
+
+
+
 
 
 
